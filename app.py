@@ -1,9 +1,5 @@
 import os
 import json
-import subprocess
-from dotenv import load_dotenv
-load_dotenv()
-
 from openai import OpenAI
 from main import audit_command
 from research_logic import deep_research
@@ -148,45 +144,12 @@ class SkillAgent:
         ]
 
     def execute_bash(self, command):
-        """Executes a bash command and returns its output, after an audit check."""
-        audit_result = audit_command(command)
-        if audit_result['status'] == "BLOCKED":
-            return f"Command execution blocked for safety: {audit_result['reason']}"
-        elif audit_result['status'] == "NEEDS_APPROVAL":
-            # For this agent, we will note that it needed approval but allow it through,
-            # or we could return asking the user for confirmation. 
-            # We'll run it but add a prefix note.
-            output_prefix = f"[WARNING: {audit_result['reason']}]\n"
-        else:
-            output_prefix = ""
-            
-        try:
-            result = subprocess.run(
-                command, 
-                shell=True, 
-                text=True, 
-                capture_output=True, 
-                timeout=30
-            ) # Using shell=True for full command string support
-            output = result.stdout
-            if result.stderr:
-                output += f"\nSTDERR: {result.stderr}"
-                
-            if not output.strip() and result.returncode == 0:
-                output = "Command executed successfully with no output."
-            elif not output.strip() and result.returncode != 0:
-                output = f"Command failed with return code {result.returncode}"
-                
-            return output_prefix + output
-        except Exception as e:
-            return f"Error executing command: {str(e)}"
-
+        pass # Streamlit Cloud shouldn't run bash directly
+        
     def web_research(self, query):
-        """Runs the deep research logic using Tavily via research_logic.py."""
         return deep_research(query)
-
+        
     def process_message(self, user_message: str):
-        """Processes a new user message and handles the tool execution loop."""
         self.messages.append({"role": "user", "content": user_message})
         
         while True:
@@ -198,8 +161,6 @@ class SkillAgent:
             )
             
             response_message = response.choices[0].message
-            
-            # Convert response message to a plain dictionary to safely store in session state
             message_dict = {"role": response_message.role, "content": response_message.content}
             
             tool_calls = response_message.tool_calls
@@ -217,11 +178,9 @@ class SkillAgent:
                 
             self.messages.append(message_dict)
             
-            # If no tool calls, we are completely done and just return the final content
             if not tool_calls:
                 return response_message.content
                 
-            # If there are tool calls, execute them and continue the loop
             for tool_call in tool_calls:
                 function_name = tool_call.function.name
                 try:
@@ -230,7 +189,7 @@ class SkillAgent:
                     args = {}
                 
                 if function_name == "execute_bash":
-                    tool_output = self.execute_bash(args.get("command", ""))
+                    tool_output = "Disabled in cloud"
                 elif function_name == "web_research":
                     tool_output = self.web_research(args.get("query", ""))
                 elif function_name == "draft_email":
@@ -253,18 +212,4 @@ class SkillAgent:
                     "content": str(tool_output)
                 })
 
-# Allow running standalone to test the logic
-if __name__ == "__main__":
-    agent = SkillAgent()
-    print("Welcome to the Command Line interface for OpenClaw-style Agent.")
-    print("Type 'exit' to quit.")
-    while True:
-        try:
-            req = input("\nUser> ")
-            if req.lower() in ['exit', 'quit']:
-                break
-            print("Agent> Thinking...")
-            res = agent.process_message(req)
-            print(f"\Agent> {res}")
-        except KeyboardInterrupt:
-            break
+
