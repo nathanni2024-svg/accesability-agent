@@ -8,12 +8,12 @@ from security_logic import analyze_security
 
 class SkillAgent:
     def __init__(self):
-        # Initialize client to use Google Gemini API for cloud web-deployment 
+        # Upgrade client to use Groq Llama-3 for blazing fast, limit-free performance!
         self.client = OpenAI(
-            api_key=os.getenv("GEMINI_API_KEY"),
-            base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+            api_key=os.getenv("GROQ_API_KEY"),
+            base_url="https://api.groq.com/openai/v1"
         )
-        self.model = "gemini-2.5-flash"
+        self.model = "llama3-70b-8192"
         
         self.system_prompt = (
             "You are a helpful, local AI skill agent similar to OpenClaw. "
@@ -144,7 +144,7 @@ class SkillAgent:
         ]
 
     def execute_bash(self, command):
-        pass # Streamlit Cloud shouldn't run bash directly
+        pass
         
     def web_research(self, query):
         return deep_research(query)
@@ -211,5 +211,6 @@ class SkillAgent:
                     "name": function_name,
                     "content": str(tool_output)
                 })
+
 
 
