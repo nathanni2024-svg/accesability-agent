@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Hub - Modern Web Interface</title>
+    <!-- Modern Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- Animated Glowing Background Elements -->
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+
+    <!-- Main Application Glassmorphism Wrapper -->
+    <div class="app-container glass-panel">
+        
+        <!-- Sidebar Navigation & Tools -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fa-solid fa-microchip"></i> AI Hub</h2>
+                <div class="connection-status"><span class="pulse"></span> Local Connection</div>
+            </div>
+
+            <div class="status-card">
+                <h3><i class="fa-solid fa-brain"></i> AI Brain Memory</h3>
+                <p>Permanent Rules Loaded: <strong id="brain-count">0</strong></p>
+            </div>
+
+            <div class="status-card dashboard">
+                <h3><i class="fa-solid fa-graduation-cap"></i> Teacher Dashboard</h3>
+                <p>Upload new class scores for smart extraction and reporting.</p>
+                <div class="upload-zone" id="upload-zone">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <p>Click or Drag files here</p>
+                    <input type="file" id="file-input" multiple hidden>
+                </div>
+                <label class="upload-consent">
+                    <input type="checkbox" id="allow-ai-extraction">
+                    Allow AI extraction for unstructured files
+                </label>
+            </div>
+
+            <div class="spacer"></div>
+            <form action="/logout" method="post">
+                <button type="submit" class="glass-btn"><i class="fa-solid fa-right-from-bracket"></i> Log Out</button>
+            </form>
+            <button id="reset-btn" class="glass-btn danger"><i class="fa-solid fa-rotate-right"></i> Wipe Session Memory</button>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-area">
+            <header>
+                <h1>Assistant <span class="badge">gemini-2.5</span></h1>
+            </header>
+            
+            <div class="chat-history" id="chat-history">
+                <div class="message assistant-msg fade-in">
+                    <div class="msg-content">
+                        Hello! The new Web GUI is completely online and running locally. How can I assist you today?
+                    </div>
+                </div>
+
+                <!-- Loader -->
+                <div class="typing-indicator" id="typing-indicator" style="display: none;">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+
+            <!-- Queue for Files attached to Chat -->
+            <div class="attachment-tray" id="attachment-tray"></div>
+
+            <div class="chat-input-container">
+                <label for="chat-file-input" class="glass-btn attach-btn" title="Attach Documents">
+                    <i class="fa-solid fa-paperclip"></i>
+                </label>
+                <input type="file" id="chat-file-input" multiple hidden>
+                
+                <input type="text" id="chat-input" placeholder="Give a command, type a message, or ask for research...">
+                <button id="send-btn" class="glass-btn primary"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/marked.min.js"></script>
+    <script src="/static/script.js"></script>
+</body>
+</html>
