@@ -1,4 +1,17 @@
 import re
+import socket
+
+def get_local_ip() -> str:
+    """Returns the local network IP address of the machine for QR Pair."""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "127.0.0.1"
+
 
 def analyze_security(content: str) -> str:
     """
