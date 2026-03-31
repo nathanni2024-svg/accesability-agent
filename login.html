@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-container glass-panel" style="max-width: 480px; margin-top: 8vh;">
+        <main class="chat-area" style="width: 100%;">
+            <header>
+                <h1>Private Access</h1>
+            </header>
+            <div class="message assistant-msg fade-in">
+                <div class="msg-content">
+                    Enter the shared password to open the app.
+                </div>
+            </div>
+            {% if error %}
+            <div class="message assistant-msg fade-in">
+                <div class="msg-content" style="color: #ef4444;">
+                    {{ error }}
+                </div>
+            </div>
+            {% endif %}
+            <form method="post" class="chat-input-container" style="padding: 24px 0;">
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="glass-btn primary">Login</button>
+            </form>
+        </main>
+    </div>
+</body>
+</html>
