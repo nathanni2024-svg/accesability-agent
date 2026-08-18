@@ -12,7 +12,7 @@ const uploadZone = document.getElementById('upload-zone');
 const fileInput = document.getElementById('file-input');
 const resetBtn = document.getElementById('reset-btn');
 
-function appendMessage(role, contentHTML, graphUrls = [], aiImageUrl = null) {
+function appendMessage(role, contentHTML, graphUrls = [], aiImageUrl = null, graphAlts = []) {
     const msgDiv = document.createElement('div');
     msgDiv.className = `message ${role}-msg fade-in`;
     
@@ -22,13 +22,16 @@ function appendMessage(role, contentHTML, graphUrls = [], aiImageUrl = null) {
     if (graphUrls) {
         const urls = Array.isArray(graphUrls) ? graphUrls : [graphUrls];
         urls.forEach((url, idx) => {
-            if (url) innerHtml += `<img src="${url}?t=${new Date().getTime()}&i=${idx}" alt="AI Generated Graph">`;
+            if (url) {
+                const alt = (Array.isArray(graphAlts) && graphAlts[idx]) ? graphAlts[idx] : `AI generated graph ${idx+1}`;
+                innerHtml += `<img src="${url}?t=${new Date().getTime()}&i=${idx}" alt="${alt}">`;
+            }
         });
     }
 
     // Add AI Image
     if (aiImageUrl) {
-        innerHtml += `<img src="${aiImageUrl}?t=${new Date().getTime()}" alt="AI Generated Picture" style="border-color: #8B5CF6; border-width: 2px;">`;
+        innerHtml += `<img src="${aiImageUrl}?t=${new Date().getTime()}" alt="AI generated image" style="border-color: #8B5CF6; border-width: 2px;">`;
     }
 
     innerHtml += `</div>`;
@@ -44,7 +47,7 @@ async function sendMessage(text) {
     
     let userHtml = text ? marked.parse(text) : "<em>(Sent Attachments)</em>";
     if (stagedFiles.length > 0) {
-        userHtml += `<br><small style="color:#93C5FD"><i class="fa-solid fa-paperclip"></i> Attached ${stagedFiles.length} file(s)</small>`;
+        userHtml += `<br><small style="color:#93C5FD"><i class="fa-solid fa-paperclip" aria-hidden="true"></i> Attached ${stagedFiles.length} file(s)</small>`;
     }
 
     appendMessage('user', userHtml);
@@ -94,15 +97,15 @@ function appendSecurityPrompt(data) {
     msgDiv.innerHTML = `
         <div class="msg-content">
             <div class="security-halt-card">
-                <h4><i class="fa-solid fa-shield-halved"></i> Security Halt: Action Required</h4>
+                <h4><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Security Halt: Action Required</h4>
                 <div class="reason">${data.reason}</div>
                 <div class="command-preview"><code>${data.command}</code></div>
                 <div class="security-actions">
                     <button class="glass-btn btn-approve" onclick="approveCommand('${data.tool_call_id}', '${data.command.replace(/'/g, "\\'")}')">
-                        <i class="fa-solid fa-check"></i> Approve
+                        <i class="fa-solid fa-check" aria-hidden="true"></i> Approve
                     </button>
                     <button class="glass-btn btn-reject" onclick="rejectCommand('${data.tool_call_id}')">
-                        <i class="fa-solid fa-xmark"></i> Reject
+                        <i class="fa-solid fa-xmark" aria-hidden="true"></i> Reject
                     </button>
                 </div>
             </div>
@@ -186,8 +189,8 @@ function renderAttachmentTray() {
         const pill = document.createElement('div');
         pill.className = 'attachment-pill fade-in';
         pill.innerHTML = `
-            <i class="fa-solid fa-file"></i> ${file.name}
-            <div class="remove-pill" onclick="removeStagedFile(${idx})"><i class="fa-solid fa-xmark"></i></div>
+            <i class="fa-solid fa-file" aria-hidden="true"></i> ${file.name}
+            <div class="remove-pill" onclick="removeStagedFile(${idx})"><i class="fa-solid fa-xmark" aria-hidden="true"></i></div>
         `;
         attachmentTray.appendChild(pill);
     });
@@ -208,30 +211,43 @@ async function updateStatus() {
     }
 }
 
-// Custom Upload UI Logic
-uploadZone.addEventListener('click', () => fileInput.click());
+// Make uploadZone keyboard-accessible if present
+if (uploadZone && fileInput) {
+  uploadZone.addEventListener('click', () => fileInput.click());
+  uploadZone.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      fileInput.click();
+    }
+  });
+}
 
-uploadZone.addEventListener('dragover', (e) => {
+// Custom Upload UI Logic
+if (uploadZone) {
+  uploadZone.addEventListener('dragover', (e) => {
     e.preventDefault();
     uploadZone.style.borderColor = '#3B82F6';
     uploadZone.style.background = 'rgba(59, 130, 246, 0.1)';
-});
+  });
 
-uploadZone.addEventListener('dragleave', () => {
+  uploadZone.addEventListener('dragleave', () => {
     uploadZone.style.borderColor = 'rgba(255, 255, 255, 0.2)';
     uploadZone.style.background = 'transparent';
-});
+  });
 
-uploadZone.addEventListener('drop', (e) => {
+  uploadZone.addEventListener('drop', (e) => {
     e.preventDefault();
     uploadZone.style.borderColor = 'rgba(255, 255, 255, 0.2)';
     uploadZone.style.background = 'transparent';
     if (e.dataTransfer.files.length) handleUpload(Array.from(e.dataTransfer.files));
-});
+  });
+}
 
-fileInput.addEventListener('change', () => {
+if (fileInput) {
+  fileInput.addEventListener('change', () => {
     if (fileInput.files.length) handleUpload(Array.from(fileInput.files));
-});
+  });
+}
 
 async function handleUpload(files) {
     if (!files.length) return;
