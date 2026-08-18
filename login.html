@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/style-accessibility.css">
 </head>
 <body>
     <div class="app-container glass-panel" style="max-width: 480px; margin-top: 8vh;">
@@ -18,14 +19,16 @@
                 </div>
             </div>
             {% if error %}
-            <div class="message assistant-msg fade-in">
+            <div class="message assistant-msg fade-in" role="alert" aria-live="assertive">
                 <div class="msg-content" style="color: #ef4444;">
                     {{ error }}
                 </div>
             </div>
             {% endif %}
-            <form method="post" class="chat-input-container" style="padding: 24px 0;">
-                <input type="password" name="password" placeholder="Password" required>
+            <form method="post" class="chat-input-container" style="padding: 24px 0;" aria-label="Login form">
+                <label for="password" class="visually-hidden">Password</label>
+                <input id="password" type="password" name="password" placeholder="Password" required aria-required="true" aria-describedby="password-help">
+                <div id="password-help" class="visually-hidden">Enter the shared password to open the app.</div>
                 <button type="submit" class="glass-btn primary">Login</button>
             </form>
         </main>
