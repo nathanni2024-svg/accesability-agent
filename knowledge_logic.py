@@ -2,6 +2,7 @@ import os
 import sqlite3
 import numpy as np
 from datetime import datetime
+
 _embedding_model = None
 
 def _get_embedding_model():
@@ -19,40 +20,86 @@ def _get_embedding_model():
 from config import SQLITE_DB_PATH, ensure_app_directories
 
 ensure_app_directories()
-
 DATABASE_FILE = str(SQLITE_DB_PATH)
 OLD_BRAIN_DIR = "AI_Brain"
 
-def _get_connection():
-    """Creates a local connection to the AI SQL Database with M5-optimized performance."""
-    conn = sqlite3.connect(DATABASE_FILE)
-    conn.row_factory = sqlite3.Row
-    # Enable WAL mode for better concurrent performance on Apple Silicon SSDs
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA synchronous=NORMAL")
-    conn.execute("PRAGMA cache_size=-64000") # 64MB Cache
-    return conn
+def _get_db_type():
+    """Returns whether we are using an online PostgreSQL database or local SQLite."""
+    return "postgresql" if os.getenv("DATABASE_URL") else "sqlite"
 
-def _init_db():
-    """Builds the AI_Brain SQL architecture with embedding support."""
+def _get_connection():
+    """Creates a database connection (PostgreSQL or local SQLite)."""
+    db_url = os.getenv("DATABASE_URL")
+    if db_url:
+        import psycopg2
+        # Support postgres:// URL schemes (which some hosts return instead of postgresql://)
+        if db_url.startswith("postgres://"):
+            db_url = db_url.replace("postgres://", "postgresql://", 1)
+        return psycopg2.connect(db_url)
+    else:
+        conn = sqlite3.connect(DATABASE_FILE)
+        conn.row_factory = sqlite3.Row
+        # Enable WAL mode for better concurrent performance
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA synchronous=NORMAL")
+        conn.execute("PRAGMA cache_size=-64000")
+        return conn
+
+def _execute_write(query, params=()):
+    """Executes an SQL write query (handles placeholder differences)."""
+    db_type = _get_db_type()
     conn = _get_connection()
     cursor = conn.cursor()
-    # Create main table
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS memories (
-            topic TEXT PRIMARY KEY,
-            information TEXT NOT NULL,
-            embedding BLOB,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
+    if db_type == "postgresql":
+        query = query.replace("?", "%s")
+    cursor.execute(query, params)
+    conn.commit()
+    conn.close()
+
+def _execute_read_all(query, params=()):
+    """Executes a read query and returns a standardized list of dicts."""
+    db_type = _get_db_type()
+    conn = _get_connection()
+    cursor = conn.cursor()
+    if db_type == "postgresql":
+        query = query.replace("?", "%s")
+    cursor.execute(query, params)
+    rows = cursor.fetchall()
     
-    # Migration: Add embedding column if it doesn't exist (for existing DBs)
-    try:
-        cursor.execute('ALTER TABLE memories ADD COLUMN embedding BLOB')
-    except sqlite3.OperationalError:
-        pass # Column already exists
-        
+    results = []
+    for r in rows:
+        results.append({
+            'topic': r[0],
+            'information': r[1],
+            'embedding': bytes(r[2]) if r[2] is not None else None,
+            'created_at': r[3]
+        })
+    conn.close()
+    return results
+
+def _init_db():
+    """Builds the memories SQL architecture with online/local fallback."""
+    db_type = _get_db_type()
+    conn = _get_connection()
+    cursor = conn.cursor()
+    if db_type == "postgresql":
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS memories (
+                topic VARCHAR(255) PRIMARY KEY,
+                information TEXT NOT NULL,
+                embedding BYTEA,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+    else:
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS memories (
+                topic TEXT PRIMARY KEY,
+                information TEXT NOT NULL,
+                embedding BLOB,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
     conn.commit()
     conn.close()
 
@@ -61,9 +108,6 @@ def _migrate_old_files():
     if not os.path.exists(OLD_BRAIN_DIR):
         return
         
-    conn = _get_connection()
-    cursor = conn.cursor()
-    
     migrated_any = False
     
     if os.path.isdir(OLD_BRAIN_DIR):
@@ -75,34 +119,28 @@ def _migrate_old_files():
                         content = f.read()
                         topic = filename.replace('.txt', '')
                         
-                        # Generate embedding for legacy data
                         embedding_blob = None
                         model = _get_embedding_model()
                         if model:
                             embedding = model.encode(content).astype(np.float32).tobytes()
                             embedding_blob = embedding
                             
-                        cursor.execute('''
+                        _execute_write('''
                             INSERT INTO memories (topic, information, embedding) 
                             VALUES (?, ?, ?)
                             ON CONFLICT(topic) DO UPDATE SET 
-                                information=excluded.information,
-                                embedding=excluded.embedding
+                                information=EXCLUDED.information,
+                                embedding=EXCLUDED.embedding
                         ''', (topic, content, embedding_blob))
                         migrated_any = True
                     os.remove(filepath)
                 except Exception:
                     pass
                 
-        if migrated_any:
-            conn.commit()
-        
         try:
             os.rmdir(OLD_BRAIN_DIR)
         except OSError:
             pass
-            
-    conn.close()
 
 _init_db()
 _migrate_old_files()
@@ -117,23 +155,18 @@ def teach_ai(topic: str, information: str) -> str:
         embedding_blob = None
         model = _get_embedding_model()
         if model:
-            # Generate embedding locally on M5 chip
             embedding = model.encode(information).astype(np.float32).tobytes()
             embedding_blob = embedding
 
-        conn = _get_connection()
-        cursor = conn.cursor()
-        cursor.execute('''
+        _execute_write('''
             INSERT INTO memories (topic, information, embedding) 
             VALUES (?, ?, ?)
             ON CONFLICT(topic) DO UPDATE SET 
-                information=excluded.information, 
-                embedding=excluded.embedding,
+                information=EXCLUDED.information, 
+                embedding=EXCLUDED.embedding,
                 created_at=CURRENT_TIMESTAMP
         ''', (clean_topic, information, embedding_blob))
-        conn.commit()
-        conn.close()
-        return f"🧠 SQL Database Updated: Learned permanent rule about '{topic}' locally (Semantics Enabled)."
+        return f"🧠 SQL Database Updated: Learned permanent rule about '{topic}' (Online Sync Enabled)."
     except Exception as e:
         return f"❌ SQL Error updating AI memory: {str(e)}"
 
@@ -143,36 +176,28 @@ def recall_memory(query: str = None) -> str:
     Otherwise, returns all records (fallback).
     """
     try:
-        conn = _get_connection()
-        cursor = conn.cursor()
-        cursor.execute('SELECT topic, information, embedding, created_at FROM memories')
-        rows = cursor.fetchall()
-        conn.close()
+        rows = _execute_read_all('SELECT topic, information, embedding, created_at FROM memories')
         
         if not rows:
             return ""
             
         model = _get_embedding_model()
         if query and model:
-            # Perform semantic cosine similarity locally
             query_embedding = model.encode(query).astype(np.float32)
             
             scored_memories = []
             for row in rows:
                 if row['embedding']:
                     mem_embedding = np.frombuffer(row['embedding'], dtype=np.float32)
-                    # Simple cosine similarity (dot product of normalized vectors)
                     similarity = np.dot(query_embedding, mem_embedding) / (
                         np.linalg.norm(query_embedding) * np.linalg.norm(mem_embedding)
                     )
                     scored_memories.append((similarity, row))
                 else:
-                    # Low score if no embedding
                     scored_memories.append((0.0, row))
             
-            # Sort by similarity and take top 5
             scored_memories.sort(key=lambda x: x[0], reverse=True)
-            top_memories = [m[1] for m in scored_memories[:5] if m[0] > 0.3] # Threshold
+            top_memories = [m[1] for m in scored_memories[:5] if m[0] > 0.3]
             
             if not top_memories:
                 return ""
@@ -183,7 +208,6 @@ def recall_memory(query: str = None) -> str:
             return "\n[RELEVANT LONG-TERM MEMORY RECALLED]\n" + "\n".join(brain_data)
         
         else:
-            # Full dump fallback
             brain_data = []
             for row in rows:
                 brain_data.append(f"--- Permanent Rule/Context: {row['topic']} (Stored: {row['created_at']}) ---\n{row['information']}\n")
@@ -198,13 +222,11 @@ def count_brain_files() -> int:
     try:
         conn = _get_connection()
         cursor = conn.cursor()
-        cursor.execute('SELECT COUNT(*) as cnt FROM memories')
+        cursor.execute('SELECT COUNT(*) FROM memories')
         row = cursor.fetchone()
         conn.close()
-        
         if row:
-            return row['cnt']
+            return row[0]
         return 0
     except Exception:
         return 0
-

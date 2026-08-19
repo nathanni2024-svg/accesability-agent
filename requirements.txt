@@ -14,3 +14,4 @@ tavily-python
 cryptography
 numpy
 aiosmtpd
+psycopg2-binary
