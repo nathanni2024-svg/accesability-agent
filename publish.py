@@ -35,9 +35,23 @@ def main():
 
     # 3. Push to GitHub
     print("\n🚀 Pushing code to GitHub (this will overwrite the old, broken version)...")
+    
+    # Read token if present in .env
+    token = None
+    if os.path.exists(".env"):
+        with open(".env") as f:
+            for line in f:
+                if line.strip().startswith("GITHUB_TOKEN="):
+                    token = line.split("=", 1)[1].strip().strip('"').strip("'")
+
     try:
-        # Force-push to main branch to overwrite the old code
-        subprocess.run(["git", "push", "-u", "origin", "main", "--force"], check=True)
+        if token:
+            print("🔑 Using GITHUB_TOKEN for authentication...")
+            url = f"https://{token}@github.com/nathanni2024-svg/accesability-agent.git"
+            subprocess.run(["git", "push", url, "main", "--force"], check=True)
+        else:
+            # Force-push to main branch to overwrite the old code
+            subprocess.run(["git", "push", "-u", "origin", "main", "--force"], check=True)
         print("\n🎉 Success! Your merged project has been published to GitHub!")
     except subprocess.CalledProcessError:
         print("\n❌ Git push failed.")
