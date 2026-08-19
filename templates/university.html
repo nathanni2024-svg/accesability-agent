@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>University Accessibility Tool - AccessPath (Shortcut: Alt+U)</title>
+  <meta name="description" content="Quick University Accessibility Search & Disability Office Advisor Tool for blind, deaf, and disabled students.">
+  <link rel="stylesheet" href="/styles/main.css">
+  <link rel="stylesheet" href="/style-accessibility.css">
+</head>
+<body data-theme="high-contrast-dark">
+
+  <!-- Skip Navigation -->
+  <a href="#main-content" class="skip-link">Skip to Main Content (Press Enter)</a>
+
+  <div id="visual-sound-flash" class="visual-sound-flash" aria-hidden="true"></div>
+  <div id="sound-caption-banner" class="sound-caption-banner" role="status" aria-live="assertive"></div>
+
+  <!-- Header -->
+  <header class="app-header" role="banner">
+    <div class="header-container">
+      <div class="brand-title">
+        <span style="font-size: 2.2rem;" aria-hidden="true">🏛️👁️👂</span>
+        <div>
+          <h1>University Tool <span class="brand-badge">SHORTCUT: ALT+U</span></h1>
+          <span class="brand-subtitle">AccessPath College Accessibility Search & Disability Office Advisor</span>
+        </div>
+      </div>
+
+      <div class="quick-toolbar" role="toolbar" aria-label="Quick Accessibility Controls">
+        <button id="btn-toggle-speech" class="tool-btn" aria-pressed="true" title="Mute/Unmute Speech Reader">
+          <span aria-hidden="true">🔊</span> Speech Reader: <strong>ON</strong>
+        </button>
+        <button id="btn-toggle-viewer" class="tool-btn" aria-pressed="true" title="Toggle Live Speech Viewer">
+          <span aria-hidden="true">💬</span> Speech Viewer
+        </button>
+        <a href="index.html" class="primary-btn" style="padding: 8px 14px; font-size: 0.9rem; text-decoration: none;">
+          🏠 Back to AccessPath Hub
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="main-content" class="main-content" role="main" tabindex="-1">
+    <section class="section-panel">
+      <div class="hero-banner" style="padding: 2rem 1.5rem; text-align: left;">
+        <h2>🏛️ University Accessibility Quick Tool</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 1.1rem; line-height: 1.5;">
+          Press <strong style="color: var(--accent-secondary);">Alt + U</strong> (or press <strong>U</strong>) on any page to instantly launch the floating University Accessibility Search modal. Compare disability offices, O&M support, housing, and screen reader site licenses.
+        </p>
+
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <button id="btn-launch-uni-tool" class="primary-btn" type="button">
+            🚀 Launch University Tool Popup (Alt+U)
+          </button>
+          <a href="index.html#tab-colleges" class="tool-btn" style="padding: 12px 20px; font-size: 1.1rem; text-decoration: none;">
+            📊 View Full College Comparison Table
+          </a>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <h2>Featured Accessible Universities</h2>
+      </div>
+
+      <div id="university-page-results"></div>
+    </section>
+  </main>
+
+  <!-- Speech Viewer Floating Transcript Panel -->
+  <aside id="jaws-speech-viewer" class="speech-viewer-panel" aria-label="Speech Viewer Live Transcript">
+    <div class="speech-viewer-header">
+      <span>💬 JAWS Speech Viewer (Braille / Live Transcript)</span>
+      <button id="btn-close-speech-viewer" style="background: none; border: none; font-weight: bold; cursor: pointer; font-size: 1rem;" aria-label="Close Speech Viewer">✕</button>
+    </div>
+    <div id="jaws-speech-content" class="speech-viewer-content" role="log" aria-live="polite">
+      <div>[SYSTEM] University Accessibility Tool Initialized. Press Alt+U to search.</div>
+    </div>
+  </aside>
+
+  <!-- Footer -->
+  <footer class="app-footer" role="contentinfo">
+    <p>AccessPath - University Accessibility Tool. Press <strong>Alt + U</strong> anytime to activate.</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/speech-accessibility.js"></script>
+  <script src="js/simulator-engine.js"></script>
+  <script src="js/overlay-generator.js"></script>
+  <script src="js/college-db.js"></script>
+  <script src="js/ai-assistant.js"></script>
+  <script src="js/university.js"></script>
+  <script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Render initial university list
+  if (window.collegeDbEngine) {
+    window.collegeDbEngine.renderTable('university-page-results', window.collegeDbEngine.filterColleges());
+  }
+
+  // Launch button
+  document.getElementById('btn-launch-uni-tool')?.addEventListener('click', () => {
+    if (window.universityToolEngine) window.universityToolEngine.openUniversityModal();
+  });
+});
+  </script>
+</body>
+</html>

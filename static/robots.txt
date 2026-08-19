@@ -1,0 +1,9 @@
+# Robots.txt for AccessPath Agent Hub
+# Allow search engines to index everything except user verification endpoints
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /approve
+
+Sitemap: https://ai-hub-agent.onrender.com/sitemap.xml

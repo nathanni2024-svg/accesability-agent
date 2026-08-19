@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AccessPath - Accessibility Hub for Students</title>
+  <meta name="description" content="Helping students with visual and hearing impairments access education, technology, and college opportunities.">
+  
+  <!-- SEO & Search Engine Optimization Tags -->
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://ai-hub-agent.onrender.com/">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://ai-hub-agent.onrender.com/">
+  <meta property="og:title" content="AccessPath - Accessibility Hub for Students">
+  <meta property="og:description" content="Helping students with visual and hearing impairments access education, technology, and college opportunities.">
+  <meta property="og:image" content="https://ai-hub-agent.onrender.com/static/generated_images/app_logo.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://ai-hub-agent.onrender.com/">
+  <meta property="twitter:title" content="AccessPath - Accessibility Hub for Students">
+  <meta property="twitter:description" content="Helping students with visual and hearing impairments access education, technology, and college opportunities.">
+  <meta property="twitter:image" content="https://ai-hub-agent.onrender.com/static/generated_images/app_logo.png">
+
+  <!-- Schema.org JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "AccessPath",
+    "url": "https://ai-hub-agent.onrender.com/",
+    "description": "Helping students with visual and hearing impairments access education, technology, and college opportunities.",
+    "genre": "Accessibility & Education",
+    "keywords": "accessibility, blind education, deaf technology, jaws screen reader, sign language, college support"
+  }
+  </script>
+
+  <link rel="stylesheet" href="/styles/main.css">
+  <link rel="stylesheet" href="/style-accessibility.css">
+</head>
+<body data-theme="high-contrast-dark">
+
+  <!-- Skip Navigation Link -->
+  <a href="#main-content" class="skip-link">Skip to Main Content (Press Enter)</a>
+
+  <!-- Visual Sound Alert Edge Flash for Deaf Users -->
+  <div id="visual-sound-flash" class="visual-sound-flash" aria-hidden="true"></div>
+
+  <!-- Subtitle & Sound Category Event Banner -->
+  <div id="sound-caption-banner" class="sound-caption-banner" role="status" aria-live="assertive"></div>
+
+  <!-- Header & Accessibility Toolbar -->
+  <header class="app-header" role="banner">
+    <div class="header-container">
+      <div class="brand-title">
+        <span style="font-size: 2.2rem;" aria-hidden="true">🎓👁️👂</span>
+        <div>
+          <h1>AccessPath <span class="brand-badge">STUDENT HUB</span></h1>
+          <span class="brand-subtitle">Empowering visually & hearing impaired students in education</span>
+        </div>
+      </div>
+
+      <div class="quick-toolbar" role="toolbar" aria-label="Quick Accessibility Controls">
+        <button id="btn-toggle-speech" class="tool-btn" aria-pressed="true" title="Mute or Unmute Voice Reader (Hotkey: Alt+S)">
+          <span aria-hidden="true">🔊</span> Speech Reader: <strong>ON</strong>
+        </button>
+
+        <button id="btn-toggle-viewer" class="tool-btn" aria-pressed="true" title="Toggle Live Speech Output Transcript Box (Hotkey: Alt+V)">
+          <span aria-hidden="true">💬</span> Speech Viewer
+        </button>
+
+        <select id="quick-theme-select" class="select-field" style="width: auto;" aria-label="Quick Theme Preset">
+          <option value="high-contrast-dark" selected>High Contrast Dark</option>
+          <option value="high-contrast-light">High Contrast Light</option>
+          <option value="yellow-on-black">Yellow on Black</option>
+          <option value="blue-on-yellow">Blue on Yellow</option>
+          <option value="deafblind-mono">Deafblind Monochromatic</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- Primary Navigation Bar (All 7 Modules) -->
+  <nav class="main-nav" role="navigation" aria-label="Primary Navigation">
+    <ul class="nav-list" role="tablist">
+      <li role="presentation">
+        <a href="#tab-home" class="nav-link active" role="tab" id="link-tab-home" aria-selected="true" aria-controls="tab-home">
+          🏠 Home
+        </a>
+      </li>
+      <li role="presentation">
+        <a href="#tab-colleges" class="nav-link" role="tab" id="link-tab-colleges" aria-selected="false" aria-controls="tab-colleges">
+          🏛️ College Database
+        </a>
+      </li>
+      <li role="presentation">
+        <a href="#tab-tools" class="nav-link" role="tab" id="link-tab-tools" aria-selected="false" aria-controls="tab-tools">
+          ⚙️ Accessibility Tools
+        </a>
+      </li>
+      <li role="presentation">
+        <a href="#tab-ai" class="nav-link" role="tab" id="link-tab-ai" aria-selected="false" aria-controls="tab-ai">
+          🤖 AI Advisor
+        </a>
+      </li>
+      <li role="presentation">
+        <a href="#tab-resources" class="nav-link" role="tab" id="link-tab-resources" aria-selected="false" aria-controls="tab-resources">
+          📚 Resources
+        </a>
+      </li>
+      <li role="presentation">
+        <a href="#tab-research" class="nav-link" role="tab" id="link-tab-research" aria-selected="false" aria-controls="tab-research">
+          🔬 Research
+        </a>
+      </li>
+      <li role="presentation">
+        <a href="#tab-community" class="nav-link" role="tab" id="link-tab-community" aria-selected="false" aria-controls="tab-community">
+          💬 Community
+        </a>
+      </li>
+      <li role="presentation">
+        <a href="#tab-finders" class="nav-link" role="tab" id="link-tab-finders" aria-selected="false" aria-controls="tab-finders">
+          🌟 Scholarships & Programs
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Main Content Area -->
+  <main id="main-content" class="main-content" role="main" tabindex="-1">
+
+    <!-- MODULE 1: HOME -->
+    <section id="tab-home" class="section-panel" role="tabpanel" aria-labelledby="link-tab-home">
+      <div class="hero-banner">
+        <h2>Welcome to AccessPath</h2>
+        <p class="hero-mission">
+          "Helping students with visual and hearing impairments access education, technology, and college opportunities."
+        </p>
+        <div class="hero-actions">
+          <button id="hero-btn-colleges" class="primary-btn" type="button">
+            🏛️ Search College Database
+          </button>
+          <button id="hero-btn-ai" class="tool-btn" type="button" style="padding: 12px 24px; font-size: 1.1rem;">
+            🤖 Ask AI Student Advisor
+          </button>
+          <button id="hero-btn-tools" class="tool-btn" type="button" style="padding: 12px 24px; font-size: 1.1rem;">
+            ⚙️ Launch JAWS Reader & Tools
+          </button>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <h2>Explore Platform Modules</h2>
+      </div>
+
+      <div class="feature-cards-grid">
+        <article class="feature-card">
+          <h3>🏛️ College Accessibility Database</h3>
+          <p>Detailed ratings and profiles for universities comparing Disability Offices, O&M training, housing, screen reader licenses, and testing accommodations.</p>
+          <button class="primary-btn btn-nav-trigger" data-target="1" type="button">Explore Colleges ↗</button>
+        </article>
+
+        <article class="feature-card">
+          <h3>⚙️ Accessibility Tools & Free JAWS</h3>
+          <p>Built-in free JAWS screen reader with virtual hotkeys (`H`, `L`, `B`, `F`), high-contrast themes, visual sound alerts, and 1-click Bookmarklet overlay.</p>
+          <button class="primary-btn btn-nav-trigger" data-target="2" type="button">Configure Tools ↗</button>
+        </article>
+
+        <article class="feature-card">
+          <h3>🤖 AI Student Disability Advisor</h3>
+          <p>Get instant guidance on SAT/ACT testing accommodation requests, FAFSA disability financial aid, and college disability office registration.</p>
+          <button class="primary-btn btn-nav-trigger" data-target="3" type="button">Ask AI Advisor ↗</button>
+        </article>
+
+        <article class="feature-card">
+          <h3>🌟 Scholarships & Summer Programs</h3>
+          <p>Filter disability tuition waivers, STEM scholarships, and high school summer research programs tailored to your state and disability.</p>
+          <button class="primary-btn btn-nav-trigger" data-target="7" type="button">Find Scholarships ↗</button>
+        </article>
+      </div>
+    </section>
+
+    <!-- MODULE 2: COLLEGE ACCESSIBILITY DATABASE -->
+    <section id="tab-colleges" class="section-panel" role="tabpanel" aria-labelledby="link-tab-colleges" style="display: none;">
+      <div class="section-header">
+        <h2>College Accessibility Ratings & Profiles</h2>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <input type="text" id="input-search-college" class="input-field" placeholder="Search school name or state..." style="width: 260px;">
+          <select id="select-filter-college" class="select-field" style="width: auto;">
+            <option value="all">All Specialties</option>
+            <option value="blind">Top Blind Support (4+ Stars)</option>
+            <option value="deaf">Top Deaf Support (4+ Stars)</option>
+            <option value="stem">Top STEM Accessibility (4+ Stars)</option>
+          </select>
+        </div>
+      </div>
+
+      <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+        Click on any school name or "View Office & Housing" to view disability office contact info, orientation & mobility services, screen reader software licenses, and testing accommodation details.
+      </p>
+
+      <div id="college-table-container"></div>
+    </section>
+
+    <!-- MODULE 3: ACCESSIBILITY TOOLS & FREE JAWS READER -->
+    <section id="tab-tools" class="section-panel" role="tabpanel" aria-labelledby="link-tab-tools" style="display: none;">
+      <div class="section-header">
+        <h2>Accessibility Configurator & Free JAWS Screen Reader</h2>
+      </div>
+
+      <!-- Presets -->
+      <div class="preset-cards-grid" role="radiogroup" aria-label="Preset Profiles">
+        <button type="button" class="preset-card active" data-preset="blind-jaws" role="radio" aria-checked="true">
+          <h3><span>👩‍🦯</span> Blind / Screen Reader</h3>
+          <p>JAWS-like virtual quick keys (`H`, `L`, `B`, `F`), fast speech synthesis, and screen reader element lists.</p>
+          <span class="preset-badge">JAWS Compatible</span>
+        </button>
+
+        <button type="button" class="preset-card" data-preset="deaf-hearing" role="radio" aria-checked="false">
+          <h3><span>🧏‍♂️</span> Deaf & Hard-of-Hearing</h3>
+          <p>AI auto-captions, visual sound alerts (screen edge flashes), sound event category banners, and visual equalizers.</p>
+          <span class="preset-badge">Visual Audio Alerts</span>
+        </button>
+
+        <button type="button" class="preset-card" data-preset="deafblind" role="radio" aria-checked="false">
+          <h3><span>⠃⠗⠇</span> Deafblind Profile</h3>
+          <p>Ultra-high monochromatic contrast, dual sensory speech-to-braille text stream, simplified layout.</p>
+          <span class="preset-badge">Braille & Speech Sync</span>
+        </button>
+
+        <button type="button" class="preset-card" data-preset="low-vision" role="radio" aria-checked="false">
+          <h3><span>🔍</span> Low Vision & Dyslexia</h3>
+          <p>400% Text Zoom, OpenDyslexic high-legibility fonts, yellow-on-black mode, and bold focus rings.</p>
+          <span class="preset-badge">Enhanced Visibility</span>
+        </button>
+      </div>
+
+      <!-- Controls Grid -->
+      <div class="control-group-grid">
+        <article class="control-card">
+          <h4><span>🎙️</span> JAWS Speech Controls</h4>
+          <div class="form-field">
+            <label for="select-voice">Voice Persona:</label>
+            <select id="select-voice" class="select-field"><option value="">System Default Voice</option></select>
+          </div>
+          <div class="form-field">
+            <label for="range-speech-rate">Speech Speed Rate:</label>
+            <div class="range-container">
+              <input type="range" id="range-speech-rate" min="0.5" max="3.5" step="0.1" value="1.0">
+              <span id="val-speech-rate" class="range-val">1.0x</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="control-card">
+          <h4><span>🎨</span> Typography & Contrast</h4>
+          <div class="form-field">
+            <label for="range-font-scale">Text Zoom / Font Size:</label>
+            <div class="range-container">
+              <input type="range" id="range-font-scale" min="1.0" max="3.0" step="0.1" value="1.0">
+              <span id="val-font-scale" class="range-val">100%</span>
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="switch-label">
+              <span>Dyslexic Font Styling</span>
+              <input type="checkbox" id="chk-dyslexic-font" class="switch-input">
+            </label>
+          </div>
+        </article>
+
+        <article class="control-card">
+          <h4><span>🧏</span> Deaf Media & Visual Alerts</h4>
+          <div class="form-field">
+            <label class="switch-label">
+              <span>Visual Sound Flash Alerts</span>
+              <input type="checkbox" id="chk-sound-flash" class="switch-input" checked>
+            </label>
+          </div>
+          <button id="btn-test-sound-alert" class="tool-btn" type="button" style="width: 100%; justify-content: center; margin-top: 15px;">
+            🔔 Test Visual Sound Alert Flash
+          </button>
+        </article>
+      </div>
+
+      <!-- Simulator Sandbox -->
+      <div class="section-header" style="margin-top: 2rem;">
+        <h2>Interactive Web Sandbox & AI DOM Repair</h2>
+        <button id="btn-run-dom-repair" class="primary-btn" type="button">⚡ Run AI DOM Auto-Repair</button>
+      </div>
+      <div class="simulator-frame-container">
+        <iframe id="sandbox-iframe" class="simulator-iframe" title="Sample Inaccessible Sandbox"></iframe>
+      </div>
+      <div id="repair-log-panel" style="margin-top: 1rem; display: none;">
+        <div id="repair-log-content" class="code-box"></div>
+      </div>
+    </section>
+
+    <!-- MODULE 4: AI STUDENT ASSISTANT -->
+    <section id="tab-ai" class="section-panel" role="tabpanel" aria-labelledby="link-tab-ai" style="display: none;">
+      <div class="section-header">
+        <h2>AI Student Disability Advisor</h2>
+      </div>
+
+      <div class="chat-container">
+        <div id="chat-history" class="chat-history" role="log" aria-live="polite">
+          <div class="chat-bubble ai">
+            👋 Hello! I am your <strong>AccessPath AI Advisor</strong>. Ask me anything about college disability offices, SAT/ACT accommodation requests, FAFSA disability aid, or assistive software!
+          </div>
+        </div>
+
+        <div class="chat-prompt-chips">
+          <button class="chip-btn" type="button" data-prompt="Which colleges have the best disability support for STEM?">🎓 Top STEM Colleges for Blind Students</button>
+          <button class="chip-btn" type="button" data-prompt="How do I request SAT accommodations?">📋 How to request SAT accommodations?</button>
+          <button class="chip-btn" type="button" data-prompt="What financial aid or state VR funding is available?">💰 State VR & FAFSA Disability Aid</button>
+        </div>
+
+        <div class="chat-input-bar">
+          <input type="text" id="input-chat" class="input-field" placeholder="Ask a question about college accommodations, SATs, or assistive tech..." aria-label="Ask AI Advisor">
+          <button id="btn-send-chat" class="primary-btn" type="button">Send ↗</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODULE 5: RESOURCE LIBRARY -->
+    <section id="tab-resources" class="section-panel" role="tabpanel" aria-labelledby="link-tab-resources" style="display: none;">
+      <div class="section-header">
+        <h2>Curated Resource Library</h2>
+      </div>
+      <div id="resources-container"></div>
+    </section>
+
+    <!-- MODULE 6: EMPIRICAL RESEARCH REPORTS -->
+    <section id="tab-research" class="section-panel" role="tabpanel" aria-labelledby="link-tab-research" style="display: none;">
+      <div class="section-header">
+        <h2>Empirical Student Accessibility Research</h2>
+      </div>
+      <div id="research-container"></div>
+    </section>
+
+    <!-- MODULE 7: COMMUNITY EXPERIENCE HUB -->
+    <section id="tab-community" class="section-panel" role="tabpanel" aria-labelledby="link-tab-community" style="display: none;">
+      <div class="section-header">
+        <h2>Student College Experience Reviews</h2>
+      </div>
+      <div id="community-container"></div>
+    </section>
+
+    <!-- MODULE 8: SCHOLARSHIPS & SUMMER PROGRAM FINDERS -->
+    <section id="tab-finders" class="section-panel" role="tabpanel" aria-labelledby="link-tab-finders" style="display: none;">
+      <div class="section-header">
+        <h2>Scholarship & Pre-College Summer Program Finder</h2>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <select id="filter-scholarship-state" class="select-field" style="width: auto;">
+            <option value="all">All States</option>
+            <option value="Texas">Texas</option>
+          </select>
+          <select id="filter-scholarship-disability" class="select-field" style="width: auto;">
+            <option value="all">All Disabilities</option>
+            <option value="blind">Blind / Low Vision</option>
+            <option value="deaf">Deaf / Hard of Hearing</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 2rem;">
+        <h3 style="color: var(--accent-color); margin-bottom: 1rem;">💰 Disability Tuition Waivers & Scholarships</h3>
+        <div id="scholarships-results-container"></div>
+      </div>
+
+      <div>
+        <h3 style="color: var(--accent-color); margin-bottom: 1rem;">🌞 Pre-College Summer Research Programs</h3>
+        <div id="summer-programs-results-container"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Speech Viewer Floating Transcript Panel -->
+  <aside id="jaws-speech-viewer" class="speech-viewer-panel" aria-label="Speech Viewer Live Transcript">
+    <div class="speech-viewer-header">
+      <span>💬 JAWS Speech Viewer (Braille / Live Transcript)</span>
+      <button id="btn-close-speech-viewer" style="background: none; border: none; font-weight: bold; cursor: pointer; font-size: 1rem;" aria-label="Close Speech Viewer">✕</button>
+    </div>
+    <div id="jaws-speech-content" class="speech-viewer-content" role="log" aria-live="polite">
+      <div>[SYSTEM] AccessPath JAWS Screen Reader Engine Initialized. Press H, L, B to navigate.</div>
+    </div>
+  </aside>
+
+  <!-- Footer -->
+  <footer class="app-footer" role="contentinfo">
+    <p>AccessPath - Accessibility Hub for Students. Helping students with visual and hearing impairments access education, technology, and college opportunities.</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/marked.min.js"></script>
+  <script src="js/speech-accessibility.js"></script>
+  <script src="js/simulator-engine.js"></script>
+  <script src="js/overlay-generator.js"></script>
+  <script src="js/college-db.js"></script>
+  <script src="js/ai-assistant.js"></script>
+  <script src="js/resources-research.js"></script>
+  <script src="js/finders.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,1906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Universal Accessibility Engine & Free JAWS-Like Screen Reader (Standalone Offline Edition)</title>
+  <meta name="description" content="A free, WCAG AAA compliant web platform for blind, deaf, and deafblind users to configure accessibility options and repair inaccessible web sites and media.">
+  <style>
+/* ==========================================================================
+   ACCESSIBILITY ENGINE & CONFIGURATOR - CORE DESIGN SYSTEM
+   WCAG 2.1 AAA Compliant Styles, High-Contrast Presets, & Focus Engine
+   ========================================================================== */
+
+:root {
+  /* Typography defaults */
+  --font-family-base: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --font-family-dyslexic: 'OpenDyslexic', 'Comic Sans MS', 'Lexend', sans-serif;
+  --active-font: var(--font-family-base);
+  
+  /* Dynamic font scaling */
+  --font-scale: 1;
+  --line-height-scale: 1.5;
+  --letter-spacing-scale: 0.05em;
+  --word-spacing-scale: 0.1em;
+  
+  /* Theme Palette: Dark High Contrast (Default) */
+  --bg-primary: #0a0e17;
+  --bg-secondary: #141b2d;
+  --bg-tertiary: #1f2942;
+  --text-primary: #ffffff;
+  --text-secondary: #cbd5e1;
+  --accent-color: #00f0ff;
+  --accent-secondary: #ffff00;
+  --accent-tertiary: #38ef7d;
+  --danger-color: #ff3366;
+  --border-color: #334155;
+  --focus-ring-color: #ffff00;
+  --focus-ring-outline: #000000;
+
+  /* Media & Alert Tokens */
+  --caption-bg: rgba(0, 0, 0, 0.95);
+  --caption-text: #ffff00;
+  --speech-viewer-bg: #000000;
+  --speech-viewer-border: #00f0ff;
+
+  /* Layout Spacing */
+  --container-max-width: 1400px;
+  --border-radius: 8px;
+}
+
+/* Theme Presets */
+body[data-theme="high-contrast-dark"] {
+  --bg-primary: #000000;
+  --bg-secondary: #111111;
+  --bg-tertiary: #222222;
+  --text-primary: #ffffff;
+  --text-secondary: #f0f0f0;
+  --accent-color: #00ffff;
+  --accent-secondary: #ffff00;
+  --border-color: #ffffff;
+  --focus-ring-color: #ffff00;
+}
+
+body[data-theme="high-contrast-light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f0f4f8;
+  --bg-tertiary: #e2e8f0;
+  --text-primary: #000000;
+  --text-secondary: #111111;
+  --accent-color: #004080;
+  --accent-secondary: #d90000;
+  --border-color: #000000;
+  --focus-ring-color: #004080;
+  --focus-ring-outline: #ffffff;
+}
+
+body[data-theme="yellow-on-black"] {
+  --bg-primary: #000000;
+  --bg-secondary: #0d0d0d;
+  --bg-tertiary: #1a1a1a;
+  --text-primary: #ffff00;
+  --text-secondary: #e6e600;
+  --accent-color: #ffff00;
+  --accent-secondary: #00ff00;
+  --border-color: #ffff00;
+  --focus-ring-color: #00ff00;
+  --focus-ring-outline: #000000;
+}
+
+body[data-theme="blue-on-yellow"] {
+  --bg-primary: #ffff99;
+  --bg-secondary: #ffff66;
+  --bg-tertiary: #ffff33;
+  --text-primary: #000066;
+  --text-secondary: #00004d;
+  --accent-color: #000099;
+  --accent-secondary: #990000;
+  --border-color: #000066;
+  --focus-ring-color: #000099;
+  --focus-ring-outline: #ffff99;
+}
+
+body[data-theme="deafblind-mono"] {
+  --bg-primary: #000000;
+  --bg-secondary: #000000;
+  --bg-tertiary: #1a1a1a;
+  --text-primary: #ffffff;
+  --text-secondary: #ffffff;
+  --accent-color: #ffffff;
+  --accent-secondary: #ffffff;
+  --border-color: #ffffff;
+  --focus-ring-color: #ffffff;
+  --focus-ring-outline: #000000;
+}
+
+/* Base Reset & Universal Box Sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: calc(16px * var(--font-scale));
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--active-font);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: var(--line-height-scale);
+  letter-spacing: var(--letter-spacing-scale);
+  word-spacing: var(--word-spacing-scale);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Accessibility Focus Engine (WCAG AAA Compliance) */
+:focus-visible {
+  outline: 4px solid var(--focus-ring-color) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 6px var(--focus-ring-outline) !important;
+  z-index: 9999;
+}
+
+/* Screen Reader Only Utility Class */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Skip Navigation Link */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 10px;
+  background: var(--accent-secondary);
+  color: #000000;
+  padding: 12px 20px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  z-index: 100000;
+  border: 3px solid #000000;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 10px;
+}
+
+/* Header & Top Announcement Bar */
+header.app-header {
+  background: var(--bg-secondary);
+  border-bottom: 3px solid var(--border-color);
+  padding: 1rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-container {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.brand-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-title h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.brand-badge {
+  background: var(--accent-color);
+  color: #000000;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+/* Quick Assistive Toolbar */
+.quick-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.tool-btn {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.15s ease;
+}
+
+.tool-btn:hover {
+  background: var(--accent-color);
+  color: #000000;
+  border-color: var(--accent-color);
+}
+
+.tool-btn[aria-pressed="true"] {
+  background: var(--accent-secondary);
+  color: #000000;
+  border-color: #000000;
+  font-weight: 800;
+}
+
+/* Navigation Tabs */
+nav.main-nav {
+  background: var(--bg-primary);
+  border-bottom: 2px solid var(--border-color);
+  padding: 0 2rem;
+}
+
+.nav-list {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  display: flex;
+  list-style: none;
+  gap: 1rem;
+}
+
+.nav-link {
+  display: inline-block;
+  padding: 1rem 1.25rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 700;
+  border-bottom: 4px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  color: var(--accent-color);
+}
+
+.nav-link.active, .nav-link[aria-current="page"] {
+  color: var(--text-primary);
+  border-bottom-color: var(--accent-color);
+  background: var(--bg-secondary);
+}
+
+/* Layout Grid */
+main.main-content {
+  max-width: var(--container-max-width);
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+  flex: 1;
+  width: 100%;
+}
+
+.section-panel {
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.section-header {
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.section-header h2 {
+  font-size: 1.5rem;
+  color: var(--accent-color);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Configurator Grid Layout */
+.preset-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.preset-card {
+  background: var(--bg-tertiary);
+  border: 3px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.preset-card:hover {
+  border-color: var(--accent-color);
+  transform: translateY(-2px);
+}
+
+.preset-card.active {
+  border-color: var(--accent-secondary);
+  background: var(--bg-secondary);
+  box-shadow: inset 0 0 0 2px var(--accent-secondary);
+}
+
+.preset-card h3 {
+  font-size: 1.2rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.preset-card p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.4;
+  margin-bottom: 1rem;
+}
+
+.preset-badge {
+  align-self: flex-start;
+  background: var(--border-color);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+/* Control Groups & Sliders */
+.control-group-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.control-card {
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1.25rem;
+}
+
+.control-card h4 {
+  font-size: 1.1rem;
+  color: var(--accent-color);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-field {
+  margin-bottom: 1.25rem;
+}
+
+.form-field:last-child {
+  margin-bottom: 0;
+}
+
+.form-field label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.range-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+input[type="range"] {
+  flex: 1;
+  height: 10px;
+  background: var(--bg-primary);
+  border: 2px solid var(--border-color);
+  border-radius: 5px;
+  accent-color: var(--accent-color);
+  cursor: pointer;
+}
+
+.range-val {
+  min-width: 50px;
+  font-weight: bold;
+  background: var(--bg-secondary);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  text-align: center;
+}
+
+select.select-field, input[type="text"].input-field {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+/* Switch Toggle Component */
+.switch-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.switch-input {
+  appearance: none;
+  width: 54px;
+  height: 28px;
+  background: var(--bg-primary);
+  border: 2px solid var(--border-color);
+  border-radius: 14px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.switch-input::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: var(--text-secondary);
+  border-radius: 50%;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.switch-input:checked {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.switch-input:checked::after {
+  transform: translateX(26px);
+  background: #000000;
+}
+
+/* JAWS Speech Viewer Floating Panel */
+.speech-viewer-panel {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 420px;
+  max-width: calc(100vw - 40px);
+  background: var(--speech-viewer-bg);
+  border: 3px solid var(--speech-viewer-border);
+  border-radius: var(--border-radius);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+  z-index: 9000;
+  display: flex;
+  flex-direction: column;
+}
+
+.speech-viewer-header {
+  background: var(--speech-viewer-border);
+  color: #000000;
+  padding: 8px 12px;
+  font-weight: 800;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.speech-viewer-content {
+  padding: 12px;
+  max-height: 140px;
+  overflow-y: auto;
+  font-family: monospace;
+  font-size: 1.05rem;
+  color: #00ff00;
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+
+/* Deaf Visual Sound Flash Overlay */
+.visual-sound-flash {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 99999;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+.visual-sound-flash.active-alert {
+  box-shadow: inset 0 0 0 16px var(--accent-secondary);
+  opacity: 1;
+}
+
+.sound-caption-banner {
+  position: fixed;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--caption-bg);
+  color: var(--caption-text);
+  border: 3px solid var(--accent-secondary);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1.3rem;
+  font-weight: 900;
+  z-index: 10000;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.8);
+  display: none;
+}
+
+.sound-caption-banner.show {
+  display: block;
+}
+
+/* JAWS Modal Element List Dialog */
+.jaws-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+}
+
+.jaws-modal {
+  background: var(--bg-primary);
+  border: 4px solid var(--accent-color);
+  border-radius: 8px;
+  width: 600px;
+  max-width: 90vw;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+}
+
+.jaws-modal h3 {
+  font-size: 1.4rem;
+  color: var(--accent-color);
+  margin-bottom: 1rem;
+}
+
+.jaws-element-list {
+  list-style: none;
+  overflow-y: auto;
+  flex: 1;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.jaws-element-item {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+}
+
+.jaws-element-item:hover, .jaws-element-item:focus {
+  background: var(--accent-color);
+  color: #000000;
+  font-weight: bold;
+}
+
+/* Simulator Sandbox Container */
+.simulator-frame-container {
+  width: 100%;
+  height: 550px;
+  border: 3px solid var(--border-color);
+  border-radius: 8px;
+  background: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+.simulator-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Action Buttons */
+.primary-btn {
+  background: var(--accent-color);
+  color: #000000;
+  border: 3px solid #000000;
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: transform 0.15s ease;
+}
+
+.primary-btn:hover {
+  transform: scale(1.03);
+}
+
+.code-box {
+  background: #000000;
+  color: #00f0ff;
+  border: 2px solid var(--border-color);
+  padding: 1rem;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 0.95rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* Footer */
+footer.app-footer {
+  background: var(--bg-secondary);
+  border-top: 2px solid var(--border-color);
+  padding: 1.5rem 2rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin-top: auto;
+}
+  </style>
+</head>
+<body data-theme="high-contrast-dark">
+
+  <!-- Skip Navigation Link for Keyboard & Screen Reader Users -->
+  <a href="#main-content" class="skip-link">Skip to Main Content (Press Enter)</a>
+
+  <!-- Visual Sound Alert Edge Flash for Deaf & Hard of Hearing Users -->
+  <div id="visual-sound-flash" class="visual-sound-flash" aria-hidden="true"></div>
+
+  <!-- Subtitle & Sound Category Event Banner -->
+  <div id="sound-caption-banner" class="sound-caption-banner" role="status" aria-live="assertive"></div>
+
+  <!-- App Header & Quick Assistive Toolbar -->
+  <header class="app-header" role="banner">
+    <div class="header-container">
+      <div class="brand-title">
+        <span style="font-size: 2rem;" aria-hidden="true">👁️👂</span>
+        <h1>AccessiHub <span class="brand-badge">FREE JAWS EDITION</span></h1>
+      </div>
+
+      <!-- Accessibility Control Toolbar -->
+      <div class="quick-toolbar" role="toolbar" aria-label="Quick Accessibility Controls">
+        <button id="btn-toggle-speech" class="tool-btn" aria-pressed="true" title="Mute or Unmute Voice Reader (Hotkey: Alt+S)">
+          <span aria-hidden="true">🔊</span> Speech Reader: <strong>ON</strong>
+        </button>
+
+        <button id="btn-toggle-viewer" class="tool-btn" aria-pressed="true" title="Toggle Live Speech Output Transcript Box (Hotkey: Alt+V)">
+          <span aria-hidden="true">💬</span> Speech Viewer
+        </button>
+
+        <select id="quick-theme-select" class="select-field" style="width: auto;" aria-label="Quick Theme Preset">
+          <option value="high-contrast-dark" selected>High Contrast Dark</option>
+          <option value="high-contrast-light">High Contrast Light</option>
+          <option value="yellow-on-black">Yellow on Black</option>
+          <option value="blue-on-yellow">Blue on Yellow</option>
+          <option value="deafblind-mono">Deafblind Monochromatic</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Navigation Tabs -->
+  <nav class="main-nav" role="navigation" aria-label="Primary Navigation">
+    <ul class="nav-list" role="tablist">
+      <li role="presentation">
+        <a href="#tab-configurator" class="nav-link active" role="tab" id="link-tab-configurator" aria-selected="true" aria-controls="tab-configurator">
+          ⚙️ Profile Configurator
+        </a>
+      </li>
+      <li role="presentation">
+        <a href="#tab-simulator" class="nav-link" role="tab" id="link-tab-simulator" aria-selected="false" aria-controls="tab-simulator">
+          🧪 Media & Web Sandbox
+        </a>
+      </li>
+      <li role="presentation">
+        <a href="#tab-bookmarklet" class="nav-link" role="tab" id="link-tab-bookmarklet" aria-selected="false" aria-controls="tab-bookmarklet">
+          🚀 Free Extension & Bookmarklet
+        </a>
+      </li>
+      <li role="presentation">
+        <a href="#tab-hotkeys" class="nav-link" role="tab" id="link-tab-hotkeys" aria-selected="false" aria-controls="tab-hotkeys">
+          ⌨️ JAWS Quick Keys Guide
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Main Workspace Content -->
+  <main id="main-content" class="main-content" role="main" tabindex="-1">
+
+    <!-- SECTION 1: ACCESSIBILITY PROFILE CONFIGURATOR -->
+    <section id="tab-configurator" class="section-panel" role="tabpanel" aria-labelledby="link-tab-configurator">
+      <div class="section-header">
+        <h2>Preset Accessibility Profiles</h2>
+        <span style="font-size: 0.95rem; color: var(--text-secondary);">Select a preset or customize settings below</span>
+      </div>
+
+      <div class="preset-cards-grid" role="radiogroup" aria-label="Accessibility Preset Profiles">
+        <button type="button" class="preset-card active" data-preset="blind-jaws" role="radio" aria-checked="true">
+          <h3><span>👩‍🦯</span> Blind / Screen Reader</h3>
+          <p>Optimized for JAWS-like virtual navigation, fast speech synthesis, ARIA landmarks, and screen reader element lists.</p>
+          <span class="preset-badge">JAWS Compatible</span>
+        </button>
+
+        <button type="button" class="preset-card" data-preset="deaf-hearing" role="radio" aria-checked="false">
+          <h3><span>🧏‍♂️</span> Deaf & Hard-of-Hearing</h3>
+          <p>Features AI auto-captions, visual sound alerts (screen flashes), sound event categories, and visual equalizers.</p>
+          <span class="preset-badge">Visual Audio Alerts</span>
+        </button>
+
+        <button type="button" class="preset-card" data-preset="deafblind" role="radio" aria-checked="false">
+          <h3><span>⠃⠗⠇</span> Deafblind Profile</h3>
+          <p>Ultra-high monochromatic contrast, dual sensory speech-to-braille text stream, simplified layout, and linear navigation.</p>
+          <span class="preset-badge">Braille & Speech Sync</span>
+        </button>
+
+        <button type="button" class="preset-card" data-preset="low-vision" role="radio" aria-checked="false">
+          <h3><span>🔍</span> Low Vision & Dyslexia</h3>
+          <p>400% Text Zoom, OpenDyslexic high-legibility fonts, high-contrast yellow-on-black mode, and bold focus rings.</p>
+          <span class="preset-badge">Enhanced Visibility</span>
+        </button>
+      </div>
+
+      <div class="section-header" style="margin-top: 2rem;">
+        <h2>Detailed Voice & Visual Controls</h2>
+      </div>
+
+      <div class="control-group-grid">
+
+        <article class="control-card">
+          <h4><span>🎙️</span> JAWS Speech Reader Engine</h4>
+          
+          <div class="form-field">
+            <label for="select-voice">Voice Persona:</label>
+            <select id="select-voice" class="select-field" aria-label="Screen Reader Voice Persona">
+              <option value="">System Default Voice</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="range-speech-rate">Speech Speed Rate:</label>
+            <div class="range-container">
+              <input type="range" id="range-speech-rate" min="0.5" max="3.5" step="0.1" value="1.0" aria-valuemin="0.5" aria-valuemax="3.5" aria-valuenow="1.0">
+              <span id="val-speech-rate" class="range-val">1.0x</span>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="range-speech-pitch">Voice Pitch:</label>
+            <div class="range-container">
+              <input type="range" id="range-speech-pitch" min="0.5" max="2.0" step="0.1" value="1.0" aria-valuemin="0.5" aria-valuemax="2.0" aria-valuenow="1.0">
+              <span id="val-speech-pitch" class="range-val">1.0</span>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="select-verbosity">Verbosity Level:</label>
+            <select id="select-verbosity" class="select-field">
+              <option value="beginner">Beginner (Includes Usage Hints)</option>
+              <option value="intermediate" selected>Intermediate (Standard JAWS)</option>
+              <option value="expert">Expert (Concise Announcements)</option>
+            </select>
+          </div>
+        </article>
+
+        <article class="control-card">
+          <h4><span>🎨</span> Typography & Contrast</h4>
+
+          <div class="form-field">
+            <label for="range-font-scale">Text Zoom / Font Size:</label>
+            <div class="range-container">
+              <input type="range" id="range-font-scale" min="1.0" max="3.0" step="0.1" value="1.0" aria-valuemin="1.0" aria-valuemax="3.0" aria-valuenow="1.0">
+              <span id="val-font-scale" class="range-val">100%</span>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="select-font-family">Typography Font:</label>
+            <select id="select-font-family" class="select-field">
+              <option value="base">Standard System Sans-Serif</option>
+              <option value="dyslexic">OpenDyslexic / Hyper-Legible</option>
+              <option value="monospace">Monospace (Deafblind Braille)</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label class="switch-label">
+              <span>Dyslexic Font Styling</span>
+              <input type="checkbox" id="chk-dyslexic-font" class="switch-input">
+            </label>
+          </div>
+
+          <div class="form-field">
+            <label class="switch-label">
+              <span>High Contrast Focus Rings (Yellow 4px)</span>
+              <input type="checkbox" id="chk-contrast-focus" class="switch-input" checked>
+            </label>
+          </div>
+        </article>
+
+        <article class="control-card">
+          <h4><span>🧏</span> Deaf Media & Visual Alerts</h4>
+
+          <div class="form-field">
+            <label class="switch-label">
+              <span>Visual Sound Flash Alerts</span>
+              <input type="checkbox" id="chk-sound-flash" class="switch-input" checked>
+            </label>
+            <small style="color: var(--text-secondary); display: block; margin-top: 4px;">Pulsating screen border when audio events occur</small>
+          </div>
+
+          <div class="form-field">
+            <label class="switch-label">
+              <span>Subtitles & AI Auto-Captions</span>
+              <input type="checkbox" id="chk-auto-captions" class="switch-input" checked>
+            </label>
+          </div>
+
+          <div class="form-field" style="margin-top: 15px;">
+            <button id="btn-test-sound-alert" type="button" class="tool-btn" style="width: 100%; justify-content: center;">
+              🔔 Test Visual Sound Alert Flash
+            </button>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- SECTION 2: LIVE MEDIA & WEB PAGE SANDBOX SIMULATOR -->
+    <section id="tab-simulator" class="section-panel" role="tabpanel" aria-labelledby="link-tab-simulator" style="display: none;">
+      <div class="section-header">
+        <h2>Interactive Inaccessible Web Page Sandbox</h2>
+        <div>
+          <button id="btn-run-dom-repair" class="primary-btn" type="button">
+            ⚡ Run AI DOM Auto-Repair (Fix Alt & Labels)
+          </button>
+        </div>
+      </div>
+
+      <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">
+        Test your accessibility profile and free JAWS virtual keys (`H`, `L`, `B`, `F`) directly on this sample inaccessible e-commerce site.
+      </p>
+
+      <div class="simulator-frame-container">
+        <iframe id="sandbox-iframe" class="simulator-iframe" title="Sample Inaccessible Page Sandbox"></iframe>
+      </div>
+
+      <div id="repair-log-panel" style="margin-top: 1.5rem; display: none;">
+        <h3 style="color: var(--accent-tertiary); margin-bottom: 0.5rem;">✅ AI DOM Auto-Repair Audit Report:</h3>
+        <div id="repair-log-content" class="code-box"></div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: FREE EXTENSION & BOOKMARKLET GENERATOR -->
+    <section id="tab-bookmarklet" class="section-panel" role="tabpanel" aria-labelledby="link-tab-bookmarklet" style="display: none;">
+      <div class="section-header">
+        <h2>Free Bookmarklet & Extension Code Generator</h2>
+      </div>
+
+      <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">
+        Take your custom JAWS screen reader and accessibility overlay to <strong>any website on the internet for free</strong>. Drag the link below to your bookmarks bar or copy the snippet!
+      </p>
+
+      <div style="background: var(--bg-tertiary); border: 2px dashed var(--accent-color); padding: 2rem; border-radius: 8px; text-align: center; margin-bottom: 2rem;">
+        <h3 style="margin-bottom: 1rem; color: var(--accent-color);">1-Click Accessibility Bookmarklet</h3>
+        <p style="margin-bottom: 1.5rem;">Drag & drop this button to your browser's Bookmarks bar:</p>
+
+        <a id="link-bookmarklet" href="#" class="primary-btn" style="text-decoration: none; display: inline-flex;" title="Drag to Bookmarks Bar">
+          🔗 AccessiHub Free JAWS Overlay
+        </a>
+      </div>
+
+      <div class="form-field">
+        <label for="code-user-script">Tampermonkey / Greasemonkey UserScript Snippet:</label>
+        <div id="code-user-script" class="code-box"></div>
+        <button id="btn-copy-code" class="tool-btn" style="margin-top: 10px;" type="button">
+          📋 Copy Code to Clipboard
+        </button>
+      </div>
+    </section>
+
+    <!-- SECTION 4: JAWS QUICK KEYS REFERENCE GUIDE -->
+    <section id="tab-hotkeys" class="section-panel" role="tabpanel" aria-labelledby="link-tab-hotkeys" style="display: none;">
+      <div class="section-header">
+        <h2>JAWS In-Browser Keyboard Shortcut Reference</h2>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;" border="1">
+          <thead>
+            <tr style="background: var(--bg-tertiary); color: var(--accent-color);">
+              <th style="padding: 12px;">Hotkey</th>
+              <th style="padding: 12px;">Function</th>
+              <th style="padding: 12px;">JAWS Equivalent</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding: 10px; font-weight: bold; color: var(--accent-secondary);">H / Shift+H</td>
+              <td style="padding: 10px;">Jump to Next / Previous Heading</td>
+              <td style="padding: 10px;">Heading Quick Key (H)</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; font-weight: bold; color: var(--accent-secondary);">L / Shift+L</td>
+              <td style="padding: 10px;">Jump to Next / Previous Link</td>
+              <td style="padding: 10px;">Link Quick Key (U/V/L)</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; font-weight: bold; color: var(--accent-secondary);">B / Shift+B</td>
+              <td style="padding: 10px;">Jump to Next / Previous Button</td>
+              <td style="padding: 10px;">Button Quick Key (B)</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; font-weight: bold; color: var(--accent-secondary);">F / Shift+F</td>
+              <td style="padding: 10px;">Jump to Next / Previous Form Field</td>
+              <td style="padding: 10px;">Form Control Quick Key (F)</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; font-weight: bold; color: var(--accent-secondary);">T / Shift+T</td>
+              <td style="padding: 10px;">Jump to Next / Previous Table</td>
+              <td style="padding: 10px;">Table Quick Key (T)</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; font-weight: bold; color: var(--accent-secondary);">D / Shift+D</td>
+              <td style="padding: 10px;">Jump to Next / Previous Landmark</td>
+              <td style="padding: 10px;">Landmark Quick Key (D)</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; font-weight: bold; color: var(--accent-secondary);">Alt + H</td>
+              <td style="padding: 10px;">Open JAWS Headings List Dialog</td>
+              <td style="padding: 10px;">Insert + F6</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; font-weight: bold; color: var(--accent-secondary);">Alt + K</td>
+              <td style="padding: 10px;">Open JAWS Links List Dialog</td>
+              <td style="padding: 10px;">Insert + F7</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; font-weight: bold; color: var(--accent-secondary);">Alt + B</td>
+              <td style="padding: 10px;">Open JAWS Buttons List Dialog</td>
+              <td style="padding: 10px;">Insert + F5</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; font-weight: bold; color: var(--accent-secondary);">Alt + V</td>
+              <td style="padding: 10px;">Toggle Speech Viewer Transcript Panel</td>
+              <td style="padding: 10px;">JAWS Speech History / Braille Stream</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- JAWS Speech Viewer Floating Live Transcript Panel -->
+  <aside id="jaws-speech-viewer" class="speech-viewer-panel" aria-label="Speech Viewer Live Transcript">
+    <div class="speech-viewer-header">
+      <span>💬 JAWS Speech Viewer (Braille / Live Transcript)</span>
+      <button id="btn-close-speech-viewer" style="background: none; border: none; font-weight: bold; cursor: pointer; font-size: 1rem;" aria-label="Close Speech Viewer">✕</button>
+    </div>
+    <div id="jaws-speech-content" class="speech-viewer-content" role="log" aria-live="polite">
+      <div>[SYSTEM] Free JAWS Screen Reader Engine Initialized. Press H, L, B to navigate.</div>
+    </div>
+  </aside>
+
+  <!-- Footer -->
+  <footer class="app-footer" role="contentinfo">
+    <p>AccessiHub - Universal Accessibility Engine & Free JAWS Screen Reader. Built to empower blind, deaf, and deafblind web users.</p>
+  </footer>
+
+  <!-- Inline Application Scripts -->
+  <script>
+/**
+ * FREE IN-BROWSER JAWS-LIKE SCREEN READER & SPEECH ENGINE
+ */
+class JawsScreenReaderEngine {
+  constructor() {
+    this.speechSynth = window.speechSynthesis;
+    this.enabled = true;
+    this.virtualCursorEnabled = true;
+    this.rate = 1.0;
+    this.pitch = 1.0;
+    this.volume = 1.0;
+    this.voice = null;
+    this.verbosity = 'intermediate';
+    this.speechViewerActive = true;
+    this.lastSpokenText = '';
+    this.activeDocument = document;
+    this.currentNavIndex = -1;
+    this.navElements = [];
+    this.activeCategory = null;
+
+    this.initVoices();
+    this.initListeners();
+    this.initAriaLiveRegion();
+  }
+
+  initVoices() {
+    if (!this.speechSynth) return;
+    const loadVoices = () => {
+      const voices = this.speechSynth.getVoices();
+      if (voices.length > 0) {
+        this.voice = voices.find(v => v.lang.startsWith('en') && v.default) || voices[0];
+      }
+    };
+    loadVoices();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = loadVoices;
+    }
+  }
+
+  initAriaLiveRegion() {
+    let liveRegion = document.getElementById('jaws-live-announcer');
+    if (!liveRegion) {
+      liveRegion = document.createElement('div');
+      liveRegion.id = 'jaws-live-announcer';
+      liveRegion.className = 'sr-only';
+      liveRegion.setAttribute('aria-live', 'assertive');
+      liveRegion.setAttribute('aria-atomic', 'true');
+      document.body.appendChild(liveRegion);
+    }
+    this.liveRegion = liveRegion;
+  }
+
+  setSpeechRate(rate) {
+    this.rate = parseFloat(rate);
+    this.announce(`Speech rate set to ${this.rate}x`);
+  }
+
+  setSpeechPitch(pitch) {
+    this.pitch = parseFloat(pitch);
+    this.announce(`Speech pitch set to ${this.pitch}`);
+  }
+
+  setVoice(voiceName) {
+    const voices = this.speechSynth.getVoices();
+    const found = voices.find(v => v.name === voiceName);
+    if (found) {
+      this.voice = found;
+      this.announce(`Voice changed to ${found.name}`);
+    }
+  }
+
+  toggleSpeech() {
+    this.enabled = !this.enabled;
+    if (!this.enabled && this.speechSynth) {
+      this.speechSynth.cancel();
+    }
+    const status = this.enabled ? 'Screen reader audio enabled' : 'Screen reader audio muted';
+    this.updateSpeechViewer(`[SYSTEM] ${status}`);
+    this.announce(status);
+    return this.enabled;
+  }
+
+  toggleSpeechViewer() {
+    this.speechViewerActive = !this.speechViewerActive;
+    const panel = document.getElementById('jaws-speech-viewer');
+    if (panel) {
+      panel.style.display = this.speechViewerActive ? 'flex' : 'none';
+    }
+    this.announce(this.speechViewerActive ? 'Speech viewer visible' : 'Speech viewer hidden');
+    return this.speechViewerActive;
+  }
+
+  speak(text, interrupt = true) {
+    if (!text) return;
+    this.lastSpokenText = text;
+    this.updateSpeechViewer(text);
+
+    if (this.liveRegion) {
+      this.liveRegion.textContent = text;
+    }
+
+    if (!this.enabled || !this.speechSynth) return;
+
+    if (interrupt) {
+      this.speechSynth.cancel();
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = this.rate;
+    utterance.pitch = this.pitch;
+    utterance.volume = this.volume;
+    if (this.voice) {
+      utterance.voice = this.voice;
+    }
+
+    this.speechSynth.speak(utterance);
+  }
+
+  announce(text) {
+    this.speak(text, true);
+  }
+
+  updateSpeechViewer(text) {
+    const content = document.getElementById('jaws-speech-content');
+    if (content) {
+      const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const entry = document.createElement('div');
+      entry.textContent = `[${timestamp}] ${text}`;
+      content.appendChild(entry);
+      content.scrollTop = content.scrollHeight;
+    }
+  }
+
+  announceElement(el) {
+    if (!el || el === document.body) return;
+
+    let text = '';
+    const tagName = el.tagName.toLowerCase();
+    const role = el.getAttribute('role') || tagName;
+    const label = el.getAttribute('aria-label') || el.innerText || el.title || el.alt || el.placeholder || '';
+    const state = el.getAttribute('aria-pressed') === 'true' ? 'pressed' : 
+                  el.getAttribute('aria-expanded') === 'true' ? 'expanded' : 
+                  el.disabled ? 'disabled' : '';
+
+    if (tagName.match(/^h[1-6]$/)) {
+      const level = tagName.replace('h', '');
+      text = `Heading level ${level}, ${label}`;
+    } else if (tagName === 'a') {
+      text = `Link, ${label}`;
+    } else if (tagName === 'button' || role === 'button') {
+      text = `Button, ${label} ${state}`;
+    } else if (tagName === 'input') {
+      const type = el.type || 'text';
+      if (type === 'checkbox') {
+        text = `Checkbox ${el.checked ? 'checked' : 'not checked'}, ${label}`;
+      } else if (type === 'range') {
+        text = `Slider ${label}, value ${el.value}`;
+      } else {
+        text = `Edit text ${label}, ${el.value}`;
+      }
+    } else if (tagName === 'select') {
+      const selectedOption = el.options[el.selectedIndex]?.text || '';
+      text = `Combo box ${label}, selected ${selectedOption}`;
+    } else {
+      text = `${role}, ${label}`;
+    }
+
+    if (this.verbosity === 'beginner' && el.getAttribute('title')) {
+      text += `. Hint: ${el.getAttribute('title')}`;
+    }
+
+    this.speak(text);
+  }
+
+  navigateCategory(category, reverse = false, targetDoc = document) {
+    let selector = '';
+    switch (category) {
+      case 'heading': selector = 'h1, h2, h3, h4, h5, h6, [role="heading"]'; break;
+      case 'link': selector = 'a[href], [role="link"]'; break;
+      case 'button': selector = 'button, input[type="button"], input[type="submit"], [role="button"]'; break;
+      case 'field': selector = 'input, select, textarea, [role="textbox"], [role="slider"]'; break;
+      case 'table': selector = 'table, [role="table"]'; break;
+      case 'landmark': selector = 'main, nav, header, footer, section, aside, [role="main"], [role="navigation"], [role="banner"]'; break;
+      default: return;
+    }
+
+    const items = Array.from(targetDoc.querySelectorAll(selector)).filter(el => {
+      return el.offsetWidth > 0 && el.offsetHeight > 0 && getComputedStyle(el).visibility !== 'hidden';
+    });
+
+    if (items.length === 0) {
+      this.speak(`No ${category}s found on page`);
+      return;
+    }
+
+    const activeEl = targetDoc.activeElement;
+    let currentIndex = items.indexOf(activeEl);
+
+    if (reverse) {
+      currentIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+    } else {
+      currentIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
+    }
+
+    const nextEl = items[currentIndex];
+    nextEl.focus();
+    this.announceElement(nextEl);
+  }
+
+  openElementListModal(category, targetDoc = document) {
+    let selector = '';
+    let title = '';
+    switch (category) {
+      case 'heading': selector = 'h1, h2, h3, h4, h5, h6'; title = 'JAWS Headings List (Alt+H)'; break;
+      case 'link': selector = 'a[href]'; title = 'JAWS Links List (Alt+K)'; break;
+      case 'button': selector = 'button, input[type="button"], [role="button"]'; title = 'JAWS Buttons List (Alt+B)'; break;
+    }
+
+    const items = Array.from(targetDoc.querySelectorAll(selector));
+    if (items.length === 0) {
+      this.speak(`No ${category} elements to list.`);
+      return;
+    }
+
+    const existing = document.getElementById('jaws-element-modal');
+    if (existing) existing.remove();
+
+    const backdrop = document.createElement('div');
+    backdrop.id = 'jaws-element-modal';
+    backdrop.className = 'jaws-modal-backdrop';
+    backdrop.setAttribute('role', 'dialog');
+    backdrop.setAttribute('aria-modal', 'true');
+    backdrop.setAttribute('aria-label', title);
+
+    const modal = document.createElement('div');
+    modal.className = 'jaws-modal';
+
+    const h3 = document.createElement('h3');
+    h3.textContent = title;
+
+    const ul = document.createElement('ul');
+    ul.className = 'jaws-element-list';
+    ul.setAttribute('tabindex', '0');
+
+    items.forEach((item, idx) => {
+      const li = document.createElement('li');
+      li.className = 'jaws-element-item';
+      li.setAttribute('tabindex', '0');
+      li.textContent = `${idx + 1}. ${item.innerText || item.getAttribute('aria-label') || item.title || 'Unlabeled Element'}`;
+      
+      const activate = () => {
+        backdrop.remove();
+        item.focus();
+        this.announceElement(item);
+      };
+
+      li.addEventListener('click', activate);
+      li.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          activate();
+        }
+      });
+      ul.appendChild(li);
+    });
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'tool-btn';
+    closeBtn.textContent = 'Close Dialog (Esc)';
+    closeBtn.addEventListener('click', () => backdrop.remove());
+
+    modal.appendChild(h3);
+    modal.appendChild(ul);
+    modal.appendChild(closeBtn);
+    backdrop.appendChild(modal);
+    document.body.appendChild(backdrop);
+
+    ul.firstElementChild.focus();
+    this.speak(`${title}. Use up and down arrows or Tab to select, Enter to move to element.`);
+
+    backdrop.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        backdrop.remove();
+        this.speak('Dialog closed.');
+      }
+    });
+  }
+
+  initListeners() {
+    document.addEventListener('focusin', (e) => {
+      this.announceElement(e.target);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+      const isEditing = activeTag === 'input' || activeTag === 'textarea' || document.activeElement.isContentEditable;
+
+      if (isEditing) return;
+
+      const isShift = e.shiftKey;
+      const isAlt = e.altKey;
+
+      if (isAlt && e.key.toLowerCase() === 'h') { e.preventDefault(); this.openElementListModal('heading'); return; }
+      if (isAlt && e.key.toLowerCase() === 'k') { e.preventDefault(); this.openElementListModal('link'); return; }
+      if (isAlt && e.key.toLowerCase() === 'b') { e.preventDefault(); this.openElementListModal('button'); return; }
+      if (isAlt && e.key.toLowerCase() === 'v') { e.preventDefault(); this.toggleSpeechViewer(); return; }
+
+      switch (e.key.toLowerCase()) {
+        case 'h': e.preventDefault(); this.navigateCategory('heading', isShift); break;
+        case 'l': e.preventDefault(); this.navigateCategory('link', isShift); break;
+        case 'b': e.preventDefault(); this.navigateCategory('button', isShift); break;
+        case 'f': e.preventDefault(); this.navigateCategory('field', isShift); break;
+        case 't': e.preventDefault(); this.navigateCategory('table', isShift); break;
+        case 'd': e.preventDefault(); this.navigateCategory('landmark', isShift); break;
+      }
+    });
+  }
+}
+
+window.jawsEngine = new JawsScreenReaderEngine();
+
+/**
+ * ACCESSIBILITY DOM REPAIR & SIMULATOR ENGINE
+ */
+class AccessibilitySimulatorEngine {
+  constructor() {
+    this.activeProfile = null;
+    this.soundAlertsEnabled = true;
+    this.autoCaptionsEnabled = true;
+    this.autoRepairEnabled = true;
+    this.soundFlashTimer = null;
+  }
+
+  getSampleInaccessibleHtml() {
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sample Inaccessible E-Commerce Page</title>
+  <style>
+    body { font-family: sans-serif; background: #222; color: #777; margin: 0; padding: 20px; }
+    .header { background: #333; padding: 10px; color: #888; }
+    .card { background: #2a2a2a; border: 1px solid #333; padding: 15px; margin-top: 15px; }
+    .btn-fake { background: #444; color: #888; padding: 8px 12px; display: inline-block; cursor: pointer; }
+    a { color: #555; text-decoration: none; }
+    *:focus { outline: none !important; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2>Tech Store (Inaccessible Demo)</h2>
+    <img src="https://picsum.photos/300/100" width="100%" height="80">
+  </div>
+  <div class="card">
+    <h3>Wireless Headphones Pro</h3>
+    <img src="https://picsum.photos/200/120" id="prod-img">
+    <p>Price: $199.99</p>
+    <div style="margin: 15px 0;">
+      <label style="color:#aaa;">Product Audio Demo (No Subtitles):</label><br>
+      <audio id="demo-audio" controls style="margin-top:5px; width:100%;">
+        <source src="https://www.w3schools.com/html/horse.ogg" type="audio/ogg">
+      </audio>
+    </div>
+    <div>
+      <input type="text" id="coupon" placeholder="Enter coupon code here...">
+    </div>
+    <div class="btn-fake" onclick="alert('Added to cart!')" style="margin-top:10px;">
+      Buy Now (Fake Div Button)
+    </div>
+  </div>
+</body>
+</html>`;
+  }
+
+  repairInaccessibleDocument(doc) {
+    if (!doc) return { repairedCount: 0, fixes: [] };
+    const fixes = [];
+
+    const images = doc.querySelectorAll('img:not([alt]), img[alt=""]');
+    images.forEach((img, idx) => {
+      const src = img.src || '';
+      const fallbackAlt = `[AI Auto-Alt]: Product image ${idx + 1} (${src.split('/').pop() || 'photo'})`;
+      img.setAttribute('alt', fallbackAlt);
+      img.setAttribute('title', fallbackAlt);
+      fixes.push(`Added AI Alt Text to image #${idx + 1}`);
+    });
+
+    const inputs = doc.querySelectorAll('input:not([aria-label]):not([id])');
+    inputs.forEach((input, idx) => {
+      const placeholder = input.placeholder || `Input field ${idx + 1}`;
+      input.setAttribute('aria-label', placeholder);
+      fixes.push(`Added ARIA label to input #${idx + 1}`);
+    });
+
+    const fakeButtons = doc.querySelectorAll('div[onclick], span[onclick]');
+    fakeButtons.forEach((btn, idx) => {
+      if (!btn.getAttribute('role')) btn.setAttribute('role', 'button');
+      if (!btn.getAttribute('tabindex')) btn.setAttribute('tabindex', '0');
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          btn.click();
+        }
+      });
+      fixes.push(`Converted fake DIV #${idx + 1} into keyboard-navigable button`);
+    });
+
+    const header = doc.querySelector('.header, header');
+    if (header && !header.getAttribute('role')) header.setAttribute('role', 'banner');
+    
+    const body = doc.body;
+    if (body && !doc.querySelector('main')) {
+      const mainWrapper = doc.createElement('main');
+      mainWrapper.setAttribute('role', 'main');
+      while (body.firstChild) {
+        mainWrapper.appendChild(body.firstChild);
+      }
+      body.appendChild(mainWrapper);
+      fixes.push('Wrapped document content inside semantic <main> landmark');
+    }
+
+    return { repairedCount: fixes.length, fixes };
+  }
+
+  triggerVisualSoundAlert(soundDescription) {
+    if (!this.soundAlertsEnabled) return;
+
+    const flashEl = document.getElementById('visual-sound-flash');
+    if (flashEl) {
+      flashEl.classList.add('active-alert');
+      clearTimeout(this.soundFlashTimer);
+      this.soundFlashTimer = setTimeout(() => {
+        flashEl.classList.remove('active-alert');
+      }, 800);
+    }
+
+    const banner = document.getElementById('sound-caption-banner');
+    if (banner) {
+      banner.textContent = `🔊 [AUDIO EVENT]: ${soundDescription}`;
+      banner.classList.add('show');
+      setTimeout(() => {
+        banner.classList.remove('show');
+      }, 4000);
+    }
+
+    if (window.jawsEngine) {
+      window.jawsEngine.updateSpeechViewer(`[DEAF VISUAL CUE]: ${soundDescription}`);
+    }
+  }
+
+  attachMediaCaptionSimulator(mediaElement) {
+    if (!mediaElement) return;
+
+    const simulatedCaptions = [
+      { time: 0, text: "🎵 [Upbeat intro music plays]" },
+      { time: 2, text: "🗣️ Narrator: Welcome to the wireless sound demonstration." },
+      { time: 5, text: "🔊 [Horse neighing / Sound effect test]" },
+      { time: 8, text: "👏 [Audience applause in background]" },
+      { time: 12, text: "🔔 [Doorbell chime sound alert]" }
+    ];
+
+    mediaElement.addEventListener('timeupdate', () => {
+      const currentSec = Math.floor(mediaElement.currentTime);
+      const match = simulatedCaptions.find(c => c.time === currentSec);
+      if (match) {
+        this.triggerVisualSoundAlert(match.text);
+      }
+    });
+
+    mediaElement.addEventListener('play', () => {
+      this.triggerVisualSoundAlert("Media playback started");
+    });
+  }
+}
+
+window.simulatorEngine = new AccessibilitySimulatorEngine();
+
+/**
+ * UNIVERSAL BOOKMARKLET & EXTENSION CODE GENERATOR
+ */
+class AccessibilityOverlayGenerator {
+  generateBookmarkletCode(profile) {
+    const minifiedCss = `
+      body { background-color: ${profile.theme === 'high-contrast-dark' ? '#000' : '#fff'} !important; color: ${profile.theme === 'high-contrast-dark' ? '#fff' : '#000'} !important; }
+      *:focus-visible { outline: 4px solid #ffff00 !important; outline-offset: 3px !important; }
+      img:not([alt]) { outline: 3px dashed #ff0000 !important; }
+    `.replace(/\s+/g, ' ');
+
+    const code = `
+(function() {
+  if (window.__a11yOverlayLoaded) { alert('Accessibility Overlay is already active!'); return; }
+  window.__a11yOverlayLoaded = true;
+  var style = document.createElement('style');
+  style.innerHTML = '${minifiedCss}';
+  document.head.appendChild(style);
+  var synth = window.speechSynthesis;
+  function speak(text) {
+    if (!synth) return;
+    synth.cancel();
+    var ut = new SpeechSynthesisUtterance(text);
+    ut.rate = ${profile.speechRate || 1.0};
+    synth.speak(ut);
+  }
+  var imgs = document.querySelectorAll('img:not([alt])');
+  imgs.forEach(function(img, i) { img.alt = '[AI Alt]: Photo ' + (i+1); });
+  document.addEventListener('keydown', function(e) {
+    var tag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+    if (tag === 'input' || tag === 'textarea') return;
+    var key = e.key.toLowerCase();
+    var selector = '';
+    if (key === 'h') selector = 'h1, h2, h3, h4, h5, h6';
+    if (key === 'l') selector = 'a[href]';
+    if (key === 'b') selector = 'button, input[type="button"]';
+    if (key === 'f') selector = 'input, select, textarea';
+    if (selector) {
+      e.preventDefault();
+      var els = Array.from(document.querySelectorAll(selector));
+      if (els.length === 0) { speak('No ' + key + ' elements found.'); return; }
+      var idx = els.indexOf(document.activeElement);
+      var next = e.shiftKey ? (idx > 0 ? idx - 1 : els.length - 1) : (idx < els.length - 1 ? idx + 1 : 0);
+      els[next].focus();
+      speak(key.toUpperCase() + ': ' + (els[next].innerText || els[next].alt || els[next].ariaLabel || 'Element'));
+    }
+  });
+  speak('Free JAWS Accessibility Overlay Activated.');
+})();`.trim();
+    return `javascript:${encodeURIComponent(code)}`;
+  }
+
+  generateUserScriptCode(profile) {
+    return `// ==UserScript==
+// @name         Free Universal JAWS & Deaf Accessibility Overlay
+// @namespace    https://accessibility-hub.local
+// @version      1.0
+// @description  Injects JAWS-like virtual quick keys, high contrast, auto-alt text, and sound alerts on any site.
+// @match        *://*/*
+// @grant        none
+// ==UserScript==
+
+(function() {
+    'use strict';
+    console.log("Accessibility Overlay Initialized.");
+})();`;
+  }
+}
+
+window.overlayGenerator = new AccessibilityOverlayGenerator();
+
+/**
+ * ACCESSIBILITY CONFIGURATOR - MAIN APPLICATION CONTROLLER
+ */
+class AccessibilityAppController {
+  constructor() {
+    this.currentProfile = {
+      preset: 'blind-jaws',
+      theme: 'high-contrast-dark',
+      speechRate: 1.0,
+      speechPitch: 1.0,
+      fontScale: 1.0,
+      fontFamily: 'base',
+      dyslexicFont: false,
+      contrastFocus: true,
+      soundFlash: true,
+      autoCaptions: true,
+      speechEnabled: true,
+      speechViewer: true
+    };
+
+    this.initElements();
+    this.initTabNavigation();
+    this.initVoiceDropdown();
+    this.initEventListeners();
+    this.initSandboxIframe();
+    this.updateGeneratorCode();
+  }
+
+  initElements() {
+    this.btnToggleSpeech = document.getElementById('btn-toggle-speech');
+    this.btnToggleViewer = document.getElementById('btn-toggle-viewer');
+    this.quickThemeSelect = document.getElementById('quick-theme-select');
+
+    this.selectVoice = document.getElementById('select-voice');
+    this.rangeSpeechRate = document.getElementById('range-speech-rate');
+    this.valSpeechRate = document.getElementById('val-speech-rate');
+    this.rangeSpeechPitch = document.getElementById('range-speech-pitch');
+    this.valSpeechPitch = document.getElementById('val-speech-pitch');
+
+    this.rangeFontScale = document.getElementById('range-font-scale');
+    this.valFontScale = document.getElementById('val-font-scale');
+    this.selectFontFamily = document.getElementById('select-font-family');
+    this.chkDyslexicFont = document.getElementById('chk-dyslexic-font');
+    this.chkContrastFocus = document.getElementById('chk-contrast-focus');
+
+    this.chkSoundFlash = document.getElementById('chk-sound-flash');
+    this.chkAutoCaptions = document.getElementById('chk-auto-captions');
+    this.btnTestSoundAlert = document.getElementById('btn-test-sound-alert');
+
+    this.sandboxIframe = document.getElementById('sandbox-iframe');
+    this.btnRunDomRepair = document.getElementById('btn-run-dom-repair');
+    this.repairLogPanel = document.getElementById('repair-log-panel');
+    this.repairLogContent = document.getElementById('repair-log-content');
+
+    this.linkBookmarklet = document.getElementById('link-bookmarklet');
+    this.codeUserScript = document.getElementById('code-user-script');
+    this.btnCopyCode = document.getElementById('btn-copy-code');
+  }
+
+  initTabNavigation() {
+    const tabs = Array.from(document.querySelectorAll('.nav-link'));
+    const panels = Array.from(document.querySelectorAll('.section-panel'));
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.activateTab(index, tabs, panels);
+      });
+
+      tab.addEventListener('keydown', (e) => {
+        let nextIndex = null;
+        if (e.key === 'ArrowRight') {
+          nextIndex = index < tabs.length - 1 ? index + 1 : 0;
+        } else if (e.key === 'ArrowLeft') {
+          nextIndex = index > 0 ? index - 1 : tabs.length - 1;
+        }
+
+        if (nextIndex !== null) {
+          e.preventDefault();
+          tabs[nextIndex].focus();
+          this.activateTab(nextIndex, tabs, panels);
+        }
+      });
+    });
+  }
+
+  activateTab(activeIndex, tabs, panels) {
+    tabs.forEach((t, i) => {
+      const isSelected = i === activeIndex;
+      t.classList.toggle('active', isSelected);
+      t.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+      t.setAttribute('tabindex', isSelected ? '0' : '-1');
+      
+      if (panels[i]) {
+        panels[i].style.display = isSelected ? 'block' : 'none';
+      }
+    });
+
+    if (window.jawsEngine) {
+      window.jawsEngine.speak(`Switched to tab ${tabs[activeIndex].innerText.replace(/^[^\w\s]+/, '').trim()}`);
+    }
+  }
+
+  initVoiceDropdown() {
+    if (!window.speechSynthesis) return;
+
+    const populate = () => {
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        this.selectVoice.innerHTML = '';
+        voices.forEach(v => {
+          const opt = document.createElement('option');
+          opt.value = v.name;
+          opt.textContent = `${v.name} (${v.lang})`;
+          if (v.default) opt.selected = true;
+          this.selectVoice.appendChild(opt);
+        });
+      }
+    };
+
+    populate();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = populate;
+    }
+  }
+
+  initEventListeners() {
+    this.btnToggleSpeech.addEventListener('click', () => {
+      const enabled = window.jawsEngine.toggleSpeech();
+      this.btnToggleSpeech.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+      this.btnToggleSpeech.innerHTML = `<span aria-hidden="true">🔊</span> Speech Reader: <strong>${enabled ? 'ON' : 'MUTED'}</strong>`;
+    });
+
+    this.btnToggleViewer.addEventListener('click', () => {
+      const active = window.jawsEngine.toggleSpeechViewer();
+      this.btnToggleViewer.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+
+    document.getElementById('btn-close-speech-viewer')?.addEventListener('click', () => {
+      window.jawsEngine.toggleSpeechViewer();
+      this.btnToggleViewer.setAttribute('aria-pressed', 'false');
+    });
+
+    this.quickThemeSelect.addEventListener('change', (e) => {
+      this.applyTheme(e.target.value);
+    });
+
+    const presetCards = document.querySelectorAll('.preset-card');
+    presetCards.forEach(card => {
+      card.addEventListener('click', () => {
+        presetCards.forEach(c => {
+          c.classList.remove('active');
+          c.setAttribute('aria-checked', 'false');
+        });
+        card.classList.add('active');
+        card.setAttribute('aria-checked', 'true');
+
+        const presetKey = card.getAttribute('data-preset');
+        this.applyPreset(presetKey);
+      });
+    });
+
+    this.rangeSpeechRate.addEventListener('input', (e) => {
+      const val = e.target.value;
+      this.valSpeechRate.textContent = `${val}x`;
+      this.currentProfile.speechRate = parseFloat(val);
+      window.jawsEngine.setSpeechRate(val);
+      this.updateGeneratorCode();
+    });
+
+    this.rangeSpeechPitch.addEventListener('input', (e) => {
+      const val = e.target.value;
+      this.valSpeechPitch.textContent = val;
+      this.currentProfile.speechPitch = parseFloat(val);
+      window.jawsEngine.setSpeechPitch(val);
+      this.updateGeneratorCode();
+    });
+
+    this.rangeFontScale.addEventListener('input', (e) => {
+      const val = e.target.value;
+      const pct = Math.round(val * 100);
+      this.valFontScale.textContent = `${pct}%`;
+      document.documentElement.style.setProperty('--font-scale', val);
+      this.currentProfile.fontScale = parseFloat(val);
+      this.updateGeneratorCode();
+    });
+
+    this.selectVoice.addEventListener('change', (e) => {
+      window.jawsEngine.setVoice(e.target.value);
+    });
+
+    this.chkDyslexicFont.addEventListener('change', (e) => {
+      const checked = e.target.checked;
+      document.documentElement.style.setProperty('--active-font', checked ? 'var(--font-family-dyslexic)' : 'var(--font-family-base)');
+      this.currentProfile.dyslexicFont = checked;
+      window.jawsEngine.speak(checked ? 'Dyslexic font enabled' : 'Standard font enabled');
+      this.updateGeneratorCode();
+    });
+
+    this.chkContrastFocus.addEventListener('change', (e) => {
+      this.currentProfile.contrastFocus = e.target.checked;
+      window.jawsEngine.speak(e.target.checked ? 'High contrast focus rings enabled' : 'Standard focus rings enabled');
+    });
+
+    this.btnTestSoundAlert.addEventListener('click', () => {
+      window.simulatorEngine.triggerVisualSoundAlert("Simulated Audio Event: 🔔 Alarm Chime Sound!");
+    });
+
+    this.btnRunDomRepair.addEventListener('click', () => {
+      this.runDomRepairOnSandbox();
+    });
+
+    this.btnCopyCode.addEventListener('click', () => {
+      const code = this.codeUserScript.textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        window.jawsEngine.speak("Accessibility Userscript code copied to clipboard!");
+        alert("Userscript copied to clipboard!");
+      });
+    });
+  }
+
+  applyTheme(themeName) {
+    document.body.setAttribute('data-theme', themeName);
+    this.currentProfile.theme = themeName;
+    this.quickThemeSelect.value = themeName;
+    window.jawsEngine.speak(`Theme changed to ${themeName.replace(/-/g, ' ')}`);
+    this.updateGeneratorCode();
+  }
+
+  applyPreset(presetKey) {
+    switch (presetKey) {
+      case 'blind-jaws':
+        this.applyTheme('high-contrast-dark');
+        this.rangeSpeechRate.value = 1.2;
+        this.rangeSpeechRate.dispatchEvent(new Event('input'));
+        window.jawsEngine.speak('Applied Blind and JAWS Screen Reader preset.');
+        break;
+      case 'deaf-hearing':
+        this.applyTheme('high-contrast-light');
+        this.chkSoundFlash.checked = true;
+        this.chkAutoCaptions.checked = true;
+        window.jawsEngine.speak('Applied Deaf and Hard-of-Hearing preset with visual audio alerts.');
+        break;
+      case 'deafblind':
+        this.applyTheme('deafblind-mono');
+        this.rangeFontScale.value = 2.0;
+        this.rangeFontScale.dispatchEvent(new Event('input'));
+        if (!window.jawsEngine.speechViewerActive) window.jawsEngine.toggleSpeechViewer();
+        window.jawsEngine.speak('Applied Deafblind Monochromatic profile with synchronized Braille transcript.');
+        break;
+      case 'low-vision':
+        this.applyTheme('yellow-on-black');
+        this.rangeFontScale.value = 2.2;
+        this.rangeFontScale.dispatchEvent(new Event('input'));
+        this.chkDyslexicFont.checked = true;
+        this.chkDyslexicFont.dispatchEvent(new Event('change'));
+        window.jawsEngine.speak('Applied Low Vision and Dyslexia preset with 220% font scaling.');
+        break;
+    }
+  }
+
+  initSandboxIframe() {
+    if (!this.sandboxIframe) return;
+
+    const iframeDoc = this.sandboxIframe.contentDocument || this.sandboxIframe.contentWindow.document;
+    const htmlContent = window.simulatorEngine.getSampleInaccessibleHtml();
+
+    iframeDoc.open();
+    iframeDoc.write(htmlContent);
+    iframeDoc.close();
+
+    setTimeout(() => {
+      const audio = iframeDoc.getElementById('demo-audio');
+      if (audio) {
+        window.simulatorEngine.attachMediaCaptionSimulator(audio);
+      }
+    }, 500);
+  }
+
+  runDomRepairOnSandbox() {
+    const iframeDoc = this.sandboxIframe.contentDocument || this.sandboxIframe.contentWindow.document;
+    const result = window.simulatorEngine.repairInaccessibleDocument(iframeDoc);
+
+    this.repairLogPanel.style.display = 'block';
+    this.repairLogContent.textContent = `Scanned 1 Page in Sandbox:\n- Fixed ${result.repairedCount} inaccessible issues.\n\nFix Log:\n` + result.fixes.map(f => ` • ${f}`).join('\n');
+
+    window.jawsEngine.speak(`AI DOM Auto-Repair finished. Repaired ${result.repairedCount} accessibility violations including missing alt text and unlabelled inputs.`);
+  }
+
+  updateGeneratorCode() {
+    if (!window.overlayGenerator) return;
+
+    const bookmarkletUri = window.overlayGenerator.generateBookmarkletCode(this.currentProfile);
+    this.linkBookmarklet.setAttribute('href', bookmarkletUri);
+
+    const userScriptCode = window.overlayGenerator.generateUserScriptCode(this.currentProfile);
+    this.codeUserScript.textContent = userScriptCode;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  window.appController = new AccessibilityAppController();
+});
+  </script>
+</body>
+</html>

@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AccessPath - Accessibility Hub for Students (Offline Edition)</title>
+  <meta name="description" content="Helping students with visual and hearing impairments access education, technology, and college opportunities.">
+  <style>
+/* ACCESSPATH STYLES */
+:root {
+  --font-family-base: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --font-family-dyslexic: 'OpenDyslexic', 'Comic Sans MS', 'Lexend', sans-serif;
+  --active-font: var(--font-family-base);
+  --font-scale: 1;
+  --line-height-scale: 1.5;
+  --letter-spacing-scale: 0.05em;
+  --word-spacing-scale: 0.1em;
+  
+  --bg-primary: #0a0e17;
+  --bg-secondary: #141b2d;
+  --bg-tertiary: #1f2942;
+  --text-primary: #ffffff;
+  --text-secondary: #cbd5e1;
+  --accent-color: #00f0ff;
+  --accent-secondary: #ffff00;
+  --accent-tertiary: #38ef7d;
+  --danger-color: #ff3366;
+  --border-color: #334155;
+  --focus-ring-color: #ffff00;
+  --focus-ring-outline: #000000;
+  --caption-bg: rgba(0, 0, 0, 0.95);
+  --caption-text: #ffff00;
+  --speech-viewer-bg: #000000;
+  --speech-viewer-border: #00f0ff;
+  --container-max-width: 1400px;
+  --border-radius: 8px;
+}
+
+body[data-theme="high-contrast-dark"] {
+  --bg-primary: #000000; --bg-secondary: #111111; --bg-tertiary: #222222;
+  --text-primary: #ffffff; --text-secondary: #f0f0f0; --accent-color: #00ffff;
+  --accent-secondary: #ffff00; --border-color: #ffffff; --focus-ring-color: #ffff00;
+}
+
+body[data-theme="high-contrast-light"] {
+  --bg-primary: #ffffff; --bg-secondary: #f0f4f8; --bg-tertiary: #e2e8f0;
+  --text-primary: #000000; --text-secondary: #111111; --accent-color: #004080;
+  --accent-secondary: #d90000; --border-color: #000000; --focus-ring-color: #004080; --focus-ring-outline: #ffffff;
+}
+
+body[data-theme="yellow-on-black"] {
+  --bg-primary: #000000; --bg-secondary: #0d0d0d; --bg-tertiary: #1a1a1a;
+  --text-primary: #ffff00; --text-secondary: #e6e600; --accent-color: #ffff00;
+  --accent-secondary: #00ff00; --border-color: #ffff00; --focus-ring-color: #00ff00; --focus-ring-outline: #000000;
+}
+
+body[data-theme="blue-on-yellow"] {
+  --bg-primary: #ffff99; --bg-secondary: #ffff66; --bg-tertiary: #ffff33;
+  --text-primary: #000066; --text-secondary: #00004d; --accent-color: #000099;
+  --accent-secondary: #990000; --border-color: #000066; --focus-ring-color: #000099; --focus-ring-outline: #ffff99;
+}
+
+body[data-theme="deafblind-mono"] {
+  --bg-primary: #000000; --bg-secondary: #000000; --bg-tertiary: #1a1a1a;
+  --text-primary: #ffffff; --text-secondary: #ffffff; --accent-color: #ffffff;
+  --accent-secondary: #ffffff; --border-color: #ffffff; --focus-ring-color: #ffffff; --focus-ring-outline: #000000;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: calc(16px * var(--font-scale)); scroll-behavior: smooth; }
+body { font-family: var(--active-font); background-color: var(--bg-primary); color: var(--text-primary); line-height: var(--line-height-scale); min-height: 100vh; display: flex; flex-direction: column; }
+
+:focus-visible { outline: 4px solid var(--focus-ring-color) !important; outline-offset: 3px !important; box-shadow: 0 0 0 6px var(--focus-ring-outline) !important; z-index: 9999; }
+.sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
+
+.skip-link { position: absolute; top: -100px; left: 10px; background: var(--accent-secondary); color: #000; padding: 12px 20px; font-weight: bold; font-size: 1.2rem; z-index: 100000; border: 3px solid #000; border-radius: 4px; text-decoration: none; transition: top 0.2s ease; }
+.skip-link:focus { top: 10px; }
+
+header.app-header { background: var(--bg-secondary); border-bottom: 3px solid var(--border-color); padding: 1rem 2rem; position: sticky; top: 0; z-index: 1000; }
+.header-container { max-width: var(--container-max-width); margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+.brand-title h1 { font-size: 1.8rem; font-weight: 900; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem; }
+.brand-subtitle { font-size: 0.85rem; color: var(--text-secondary); display: block; margin-top: 2px; }
+.brand-badge { background: var(--accent-color); color: #000; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; }
+
+.quick-toolbar { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.tool-btn { background: var(--bg-tertiary); color: var(--text-primary); border: 2px solid var(--border-color); padding: 8px 14px; border-radius: 6px; font-size: 0.95rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; }
+.tool-btn:hover { background: var(--accent-color); color: #000; border-color: var(--accent-color); }
+.tool-btn[aria-pressed="true"] { background: var(--accent-secondary); color: #000; border-color: #000; font-weight: 800; }
+
+nav.main-nav { background: var(--bg-primary); border-bottom: 2px solid var(--border-color); padding: 0 1.5rem; overflow-x: auto; }
+.nav-list { max-width: var(--container-max-width); margin: 0 auto; display: flex; list-style: none; gap: 0.5rem; }
+.nav-link { display: inline-block; padding: 1rem 1rem; color: var(--text-secondary); text-decoration: none; font-weight: 700; white-space: nowrap; border-bottom: 4px solid transparent; }
+.nav-link.active, .nav-link[aria-current="page"] { color: var(--text-primary); border-bottom-color: var(--accent-color); background: var(--bg-secondary); }
+
+main.main-content { max-width: var(--container-max-width); margin: 2rem auto; padding: 0 1.5rem; flex: 1; width: 100%; }
+.section-panel { background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: var(--border-radius); padding: 2rem; margin-bottom: 2rem; }
+.section-header { margin-bottom: 1.5rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+.section-header h2 { font-size: 1.6rem; color: var(--accent-color); display: flex; align-items: center; gap: 0.5rem; }
+
+.hero-banner { background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%); border: 3px solid var(--border-color); border-radius: var(--border-radius); padding: 3rem 2rem; text-align: center; margin-bottom: 2rem; }
+.hero-banner h2 { font-size: 2.4rem; color: var(--accent-color); margin-bottom: 1rem; }
+.hero-mission { font-size: 1.25rem; color: var(--accent-secondary); font-weight: bold; max-width: 900px; margin: 0 auto 2rem auto; line-height: 1.6; }
+.hero-actions { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+
+.feature-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+.feature-card { background: var(--bg-tertiary); border: 2px solid var(--border-color); border-radius: var(--border-radius); padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; }
+.feature-card h3 { font-size: 1.3rem; color: var(--accent-color); margin-bottom: 0.75rem; }
+.feature-card p { color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5; }
+
+.table-responsive { overflow-x: auto; margin-top: 1rem; border: 2px solid var(--border-color); border-radius: var(--border-radius); }
+table.data-table { width: 100%; border-collapse: collapse; text-align: left; }
+table.data-table th { background: var(--bg-tertiary); color: var(--accent-color); padding: 14px 16px; font-size: 1.05rem; border-bottom: 2px solid var(--border-color); }
+table.data-table td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); }
+table.data-table tr:hover { background: var(--bg-tertiary); }
+.score-pill { background: var(--accent-tertiary); color: #000; font-weight: 900; padding: 4px 10px; border-radius: 12px; font-size: 0.9rem; display: inline-block; }
+
+.chat-container { display: flex; flex-direction: column; height: 500px; border: 2px solid var(--border-color); border-radius: var(--border-radius); background: var(--bg-primary); overflow: hidden; }
+.chat-history { flex: 1; padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
+.chat-bubble { max-width: 80%; padding: 12px 18px; border-radius: 12px; line-height: 1.5; font-size: 1.05rem; }
+.chat-bubble.user { align-self: flex-end; background: var(--accent-color); color: #000; font-weight: 600; border-bottom-right-radius: 2px; }
+.chat-bubble.ai { align-self: flex-start; background: var(--bg-tertiary); color: var(--text-primary); border: 2px solid var(--border-color); border-bottom-left-radius: 2px; }
+.chat-prompt-chips { display: flex; gap: 0.5rem; padding: 0.75rem 1rem; background: var(--bg-secondary); border-top: 1px solid var(--border-color); overflow-x: auto; }
+.chip-btn { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 16px; font-size: 0.85rem; cursor: pointer; white-space: nowrap; }
+.chat-input-bar { display: flex; gap: 0.5rem; padding: 1rem; background: var(--bg-secondary); border-top: 2px solid var(--border-color); }
+
+.accesspath-modal-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); display: flex; justify-content: center; align-items: center; z-index: 99999; }
+.accesspath-modal { background: var(--bg-primary); border: 4px solid var(--accent-color); border-radius: 8px; width: 750px; max-width: 92vw; max-height: 85vh; display: flex; flex-direction: column; padding: 2rem; overflow-y: auto; }
+.accesspath-modal h3 { font-size: 1.8rem; color: var(--accent-color); margin-bottom: 1rem; }
+.modal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 1rem; }
+.modal-card { background: var(--bg-tertiary); border: 1px solid var(--border-color); padding: 1rem; border-radius: 6px; }
+.modal-card h4 { color: var(--accent-secondary); margin-bottom: 0.5rem; }
+
+.preset-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+.preset-card { background: var(--bg-tertiary); border: 3px solid var(--border-color); border-radius: var(--border-radius); padding: 1.5rem; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; }
+.preset-card.active { border-color: var(--accent-secondary); background: var(--bg-secondary); box-shadow: inset 0 0 0 2px var(--accent-secondary); }
+.preset-card h3 { font-size: 1.2rem; color: var(--text-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+.preset-card p { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.4; margin-bottom: 1rem; }
+.preset-badge { align-self: flex-start; background: var(--border-color); color: var(--text-primary); font-size: 0.8rem; padding: 4px 8px; border-radius: 4px; font-weight: 700; }
+
+.control-group-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+.control-card { background: var(--bg-tertiary); border: 2px solid var(--border-color); border-radius: var(--border-radius); padding: 1.25rem; }
+.control-card h4 { font-size: 1.1rem; color: var(--accent-color); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+.form-field { margin-bottom: 1.25rem; }
+.form-field label { display: block; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-primary); }
+.range-container { display: flex; align-items: center; gap: 1rem; }
+input[type="range"] { flex: 1; height: 10px; background: var(--bg-primary); border: 2px solid var(--border-color); border-radius: 5px; accent-color: var(--accent-color); cursor: pointer; }
+.range-val { min-width: 50px; font-weight: bold; background: var(--bg-secondary); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-color); text-align: center; }
+select.select-field, input[type="text"].input-field { width: 100%; padding: 10px 14px; background: var(--bg-primary); color: var(--text-primary); border: 2px solid var(--border-color); border-radius: 6px; font-size: 1rem; font-family: inherit; }
+
+.switch-label { display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 700; }
+.switch-input { appearance: none; width: 54px; height: 28px; background: var(--bg-primary); border: 2px solid var(--border-color); border-radius: 14px; position: relative; cursor: pointer; }
+.switch-input::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: var(--text-secondary); border-radius: 50%; }
+.switch-input:checked { background: var(--accent-color); border-color: var(--accent-color); }
+.switch-input:checked::after { transform: translateX(26px); background: #000; }
+
+.speech-viewer-panel { position: fixed; bottom: 20px; right: 20px; width: 420px; max-width: calc(100vw - 40px); background: var(--speech-viewer-bg); border: 3px solid var(--speech-viewer-border); border-radius: var(--border-radius); box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 9000; display: flex; flex-direction: column; }
+.speech-viewer-header { background: var(--speech-viewer-border); color: #000; padding: 8px 12px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
+.speech-viewer-content { padding: 12px; max-height: 140px; overflow-y: auto; font-family: monospace; font-size: 1.05rem; color: #00ff00; line-height: 1.4; white-space: pre-wrap; }
+
+.visual-sound-flash { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 99999; opacity: 0; }
+.visual-sound-flash.active-alert { box-shadow: inset 0 0 0 16px var(--accent-secondary); opacity: 1; }
+.sound-caption-banner { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); background: var(--caption-bg); color: var(--caption-text); border: 3px solid var(--accent-secondary); padding: 12px 24px; border-radius: 8px; font-size: 1.3rem; font-weight: 900; z-index: 10000; display: none; }
+.sound-caption-banner.show { display: block; }
+
+.simulator-frame-container { width: 100%; height: 480px; border: 3px solid var(--border-color); border-radius: 8px; background: #ffffff; position: relative; overflow: hidden; }
+.simulator-iframe { width: 100%; height: 100%; border: none; }
+
+.primary-btn { background: var(--accent-color); color: #000; border: 3px solid #000; padding: 12px 24px; font-size: 1.1rem; font-weight: 800; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; }
+.primary-btn:hover { transform: scale(1.03); }
+
+.code-box { background: #000; color: #00f0ff; border: 2px solid var(--border-color); padding: 1rem; border-radius: 6px; font-family: monospace; font-size: 0.95rem; overflow-x: auto; white-space: pre-wrap; }
+footer.app-footer { background: var(--bg-secondary); border-top: 2px solid var(--border-color); padding: 2rem; text-align: center; color: var(--text-secondary); font-size: 0.95rem; margin-top: auto; }
+  </style>
+</head>
+<body data-theme="high-contrast-dark">
+
+  <a href="#main-content" class="skip-link">Skip to Main Content (Press Enter)</a>
+  <div id="visual-sound-flash" class="visual-sound-flash" aria-hidden="true"></div>
+  <div id="sound-caption-banner" class="sound-caption-banner" role="status" aria-live="assertive"></div>
+
+  <header class="app-header" role="banner">
+    <div class="header-container">
+      <div class="brand-title">
+        <span style="font-size: 2.2rem;" aria-hidden="true">🎓👁️👂</span>
+        <div>
+          <h1>AccessPath <span class="brand-badge">STUDENT HUB</span></h1>
+          <span class="brand-subtitle">Empowering visually & hearing impaired students in education</span>
+        </div>
+      </div>
+
+      <div class="quick-toolbar" role="toolbar" aria-label="Quick Accessibility Controls">
+        <button id="btn-toggle-speech" class="tool-btn" aria-pressed="true" title="Mute or Unmute Voice Reader (Hotkey: Alt+S)">
+          <span aria-hidden="true">🔊</span> Speech Reader: <strong>ON</strong>
+        </button>
+
+        <button id="btn-toggle-viewer" class="tool-btn" aria-pressed="true" title="Toggle Live Speech Output Transcript Box (Hotkey: Alt+V)">
+          <span aria-hidden="true">💬</span> Speech Viewer
+        </button>
+
+        <select id="quick-theme-select" class="select-field" style="width: auto;" aria-label="Quick Theme Preset">
+          <option value="high-contrast-dark" selected>High Contrast Dark</option>
+          <option value="high-contrast-light">High Contrast Light</option>
+          <option value="yellow-on-black">Yellow on Black</option>
+          <option value="blue-on-yellow">Blue on Yellow</option>
+          <option value="deafblind-mono">Deafblind Monochromatic</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <nav class="main-nav" role="navigation" aria-label="Primary Navigation">
+    <ul class="nav-list" role="tablist">
+      <li role="presentation"><a href="#tab-home" class="nav-link active" role="tab" id="link-tab-home" aria-selected="true" aria-controls="tab-home">🏠 Home</a></li>
+      <li role="presentation"><a href="#tab-colleges" class="nav-link" role="tab" id="link-tab-colleges" aria-selected="false" aria-controls="tab-colleges">🏛️ College Database</a></li>
+      <li role="presentation"><a href="#tab-tools" class="nav-link" role="tab" id="link-tab-tools" aria-selected="false" aria-controls="tab-tools">⚙️ Accessibility Tools</a></li>
+      <li role="presentation"><a href="#tab-ai" class="nav-link" role="tab" id="link-tab-ai" aria-selected="false" aria-controls="tab-ai">🤖 AI Advisor</a></li>
+      <li role="presentation"><a href="#tab-resources" class="nav-link" role="tab" id="link-tab-resources" aria-selected="false" aria-controls="tab-resources">📚 Resources</a></li>
+      <li role="presentation"><a href="#tab-research" class="nav-link" role="tab" id="link-tab-research" aria-selected="false" aria-controls="tab-research">🔬 Research</a></li>
+      <li role="presentation"><a href="#tab-community" class="nav-link" role="tab" id="link-tab-community" aria-selected="false" aria-controls="tab-community">💬 Community</a></li>
+      <li role="presentation"><a href="#tab-finders" class="nav-link" role="tab" id="link-tab-finders" aria-selected="false" aria-controls="tab-finders">🌟 Scholarships & Programs</a></li>
+    </ul>
+  </nav>
+
+  <main id="main-content" class="main-content" role="main" tabindex="-1">
+    <!-- MODULE 1: HOME -->
+    <section id="tab-home" class="section-panel" role="tabpanel" aria-labelledby="link-tab-home">
+      <div class="hero-banner">
+        <h2>Welcome to AccessPath</h2>
+        <p class="hero-mission">"Helping students with visual and hearing impairments access education, technology, and college opportunities."</p>
+        <div class="hero-actions">
+          <button id="hero-btn-colleges" class="primary-btn" type="button">🏛️ Search College Database</button>
+          <button id="hero-btn-ai" class="tool-btn" type="button" style="padding: 12px 24px; font-size: 1.1rem;">🤖 Ask AI Student Advisor</button>
+          <button id="hero-btn-tools" class="tool-btn" type="button" style="padding: 12px 24px; font-size: 1.1rem;">⚙️ Launch JAWS Reader & Tools</button>
+        </div>
+      </div>
+      <div class="section-header"><h2>Explore Platform Modules</h2></div>
+      <div class="feature-cards-grid">
+        <article class="feature-card">
+          <h3>🏛️ College Accessibility Database</h3>
+          <p>Detailed ratings and profiles for universities comparing Disability Offices, O&M training, housing, screen reader licenses, and testing accommodations.</p>
+          <button class="primary-btn btn-nav-trigger" data-target="1" type="button">Explore Colleges ↗</button>
+        </article>
+        <article class="feature-card">
+          <h3>⚙️ Accessibility Tools & Free JAWS</h3>
+          <p>Built-in free JAWS screen reader with virtual hotkeys (`H`, `L`, `B`, `F`), high-contrast themes, visual sound alerts, and 1-click Bookmarklet overlay.</p>
+          <button class="primary-btn btn-nav-trigger" data-target="2" type="button">Configure Tools ↗</button>
+        </article>
+        <article class="feature-card">
+          <h3>🤖 AI Student Disability Advisor</h3>
+          <p>Get instant guidance on SAT/ACT testing accommodation requests, FAFSA disability financial aid, and college disability office registration.</p>
+          <button class="primary-btn btn-nav-trigger" data-target="3" type="button">Ask AI Advisor ↗</button>
+        </article>
+        <article class="feature-card">
+          <h3>🌟 Scholarships & Summer Programs</h3>
+          <p>Filter disability tuition waivers, STEM scholarships, and high school summer research programs tailored to your state and disability.</p>
+          <button class="primary-btn btn-nav-trigger" data-target="7" type="button">Find Scholarships ↗</button>
+        </article>
+      </div>
+    </section>
+
+    <!-- MODULE 2: COLLEGE DATABASE -->
+    <section id="tab-colleges" class="section-panel" role="tabpanel" aria-labelledby="link-tab-colleges" style="display: none;">
+      <div class="section-header">
+        <h2>College Accessibility Ratings & Profiles</h2>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <input type="text" id="input-search-college" class="input-field" placeholder="Search school name or state..." style="width: 260px;">
+          <select id="select-filter-college" class="select-field" style="width: auto;">
+            <option value="all">All Specialties</option>
+            <option value="blind">Top Blind Support (4+ Stars)</option>
+            <option value="deaf">Top Deaf Support (4+ Stars)</option>
+            <option value="stem">Top STEM Accessibility (4+ Stars)</option>
+          </select>
+        </div>
+      </div>
+      <p style="color: var(--text-secondary); margin-bottom: 1rem;">Click on any school name or "View Office & Housing" to view disability office contact info, O&M services, screen reader licenses, and testing accommodations.</p>
+      <div id="college-table-container"></div>
+    </section>
+
+    <!-- MODULE 3: TOOLS -->
+    <section id="tab-tools" class="section-panel" role="tabpanel" aria-labelledby="link-tab-tools" style="display: none;">
+      <div class="section-header"><h2>Accessibility Configurator & Free JAWS Screen Reader</h2></div>
+      <div class="preset-cards-grid" role="radiogroup" aria-label="Preset Profiles">
+        <button type="button" class="preset-card active" data-preset="blind-jaws" role="radio" aria-checked="true">
+          <h3><span>👩‍🦯</span> Blind / Screen Reader</h3>
+          <p>JAWS-like virtual quick keys (`H`, `L`, `B`, `F`), fast speech synthesis, and screen reader element lists.</p>
+          <span class="preset-badge">JAWS Compatible</span>
+        </button>
+        <button type="button" class="preset-card" data-preset="deaf-hearing" role="radio" aria-checked="false">
+          <h3><span>🧏‍♂️</span> Deaf & Hard-of-Hearing</h3>
+          <p>AI auto-captions, visual sound alerts (screen edge flashes), sound event categories, and visual equalizers.</p>
+          <span class="preset-badge">Visual Audio Alerts</span>
+        </button>
+        <button type="button" class="preset-card" data-preset="deafblind" role="radio" aria-checked="false">
+          <h3><span>⠃⠗⠇</span> Deafblind Profile</h3>
+          <p>Ultra-high monochromatic contrast, dual sensory speech-to-braille text stream, simplified layout.</p>
+          <span class="preset-badge">Braille & Speech Sync</span>
+        </button>
+        <button type="button" class="preset-card" data-preset="low-vision" role="radio" aria-checked="false">
+          <h3><span>🔍</span> Low Vision & Dyslexia</h3>
+          <p>400% Text Zoom, OpenDyslexic high-legibility fonts, yellow-on-black mode, and bold focus rings.</p>
+          <span class="preset-badge">Enhanced Visibility</span>
+        </button>
+      </div>
+      <div class="control-group-grid">
+        <article class="control-card">
+          <h4><span>🎙️</span> JAWS Speech Controls</h4>
+          <div class="form-field"><label for="select-voice">Voice Persona:</label><select id="select-voice" class="select-field"><option value="">System Default Voice</option></select></div>
+          <div class="form-field"><label for="range-speech-rate">Speech Speed Rate:</label><div class="range-container"><input type="range" id="range-speech-rate" min="0.5" max="3.5" step="0.1" value="1.0"><span id="val-speech-rate" class="range-val">1.0x</span></div></div>
+        </article>
+        <article class="control-card">
+          <h4><span>🎨</span> Typography & Contrast</h4>
+          <div class="form-field"><label for="range-font-scale">Text Zoom / Font Size:</label><div class="range-container"><input type="range" id="range-font-scale" min="1.0" max="3.0" step="0.1" value="1.0"><span id="val-font-scale" class="range-val">100%</span></div></div>
+          <div class="form-field"><label class="switch-label"><span>Dyslexic Font Styling</span><input type="checkbox" id="chk-dyslexic-font" class="switch-input"></label></div>
+        </article>
+        <article class="control-card">
+          <h4><span>🧏</span> Deaf Media & Visual Alerts</h4>
+          <div class="form-field"><label class="switch-label"><span>Visual Sound Flash Alerts</span><input type="checkbox" id="chk-sound-flash" class="switch-input" checked></label></div>
+          <button id="btn-test-sound-alert" class="tool-btn" type="button" style="width: 100%; justify-content: center; margin-top: 15px;">🔔 Test Visual Sound Alert Flash</button>
+        </article>
+      </div>
+      <div class="section-header" style="margin-top: 2rem;"><h2>Interactive Web Sandbox & AI DOM Repair</h2><button id="btn-run-dom-repair" class="primary-btn" type="button">⚡ Run AI DOM Auto-Repair</button></div>
+      <div class="simulator-frame-container"><iframe id="sandbox-iframe" class="simulator-iframe" title="Sample Inaccessible Sandbox"></iframe></div>
+      <div id="repair-log-panel" style="margin-top: 1rem; display: none;"><div id="repair-log-content" class="code-box"></div></div>
+    </section>
+
+    <!-- MODULE 4: AI ADVISOR -->
+    <section id="tab-ai" class="section-panel" role="tabpanel" aria-labelledby="link-tab-ai" style="display: none;">
+      <div class="section-header"><h2>AI Student Disability Advisor</h2></div>
+      <div class="chat-container">
+        <div id="chat-history" class="chat-history" role="log" aria-live="polite">
+          <div class="chat-bubble ai">👋 Hello! I am your <strong>AccessPath AI Advisor</strong>. Ask me anything about college disability offices, SAT/ACT accommodation requests, FAFSA disability aid, or assistive software!</div>
+        </div>
+        <div class="chat-prompt-chips">
+          <button class="chip-btn" type="button" data-prompt="Which colleges have the best disability support for STEM?">🎓 Top STEM Colleges for Blind Students</button>
+          <button class="chip-btn" type="button" data-prompt="How do I request SAT accommodations?">📋 How to request SAT accommodations?</button>
+          <button class="chip-btn" type="button" data-prompt="What financial aid or state VR funding is available?">💰 State VR & FAFSA Disability Aid</button>
+        </div>
+        <div class="chat-input-bar">
+          <input type="text" id="input-chat" class="input-field" placeholder="Ask a question about college accommodations, SATs, or assistive tech..." aria-label="Ask AI Advisor">
+          <button id="btn-send-chat" class="primary-btn" type="button">Send ↗</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODULE 5: RESOURCES -->
+    <section id="tab-resources" class="section-panel" role="tabpanel" aria-labelledby="link-tab-resources" style="display: none;">
+      <div class="section-header"><h2>Curated Resource Library</h2></div>
+      <div id="resources-container"></div>
+    </section>
+
+    <!-- MODULE 6: RESEARCH -->
+    <section id="tab-research" class="section-panel" role="tabpanel" aria-labelledby="link-tab-research" style="display: none;">
+      <div class="section-header"><h2>Empirical Student Accessibility Research</h2></div>
+      <div id="research-container"></div>
+    </section>
+
+    <!-- MODULE 7: COMMUNITY -->
+    <section id="tab-community" class="section-panel" role="tabpanel" aria-labelledby="link-tab-community" style="display: none;">
+      <div class="section-header"><h2>Student College Experience Reviews</h2></div>
+      <div id="community-container"></div>
+    </section>
+
+    <!-- MODULE 8: FINDERS -->
+    <section id="tab-finders" class="section-panel" role="tabpanel" aria-labelledby="link-tab-finders" style="display: none;">
+      <div class="section-header">
+        <h2>Scholarship & Pre-College Summer Program Finder</h2>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <select id="filter-scholarship-state" class="select-field" style="width: auto;"><option value="all">All States</option><option value="Texas">Texas</option></select>
+          <select id="filter-scholarship-disability" class="select-field" style="width: auto;"><option value="all">All Disabilities</option><option value="blind">Blind / Low Vision</option><option value="deaf">Deaf / Hard of Hearing</option></select>
+        </div>
+      </div>
+      <div style="margin-bottom: 2rem;">
+        <h3 style="color: var(--accent-color); margin-bottom: 1rem;">💰 Disability Tuition Waivers & Scholarships</h3>
+        <div id="scholarships-results-container"></div>
+      </div>
+      <div>
+        <h3 style="color: var(--accent-color); margin-bottom: 1rem;">🌞 Pre-College Summer Research Programs</h3>
+        <div id="summer-programs-results-container"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <aside id="jaws-speech-viewer" class="speech-viewer-panel" aria-label="Speech Viewer Live Transcript">
+    <div class="speech-viewer-header">
+      <span>💬 JAWS Speech Viewer (Braille / Live Transcript)</span>
+      <button id="btn-close-speech-viewer" style="background: none; border: none; font-weight: bold; cursor: pointer; font-size: 1rem;" aria-label="Close Speech Viewer">✕</button>
+    </div>
+    <div id="jaws-speech-content" class="speech-viewer-content" role="log" aria-live="polite">
+      <div>[SYSTEM] AccessPath JAWS Screen Reader Engine Initialized. Press H, L, B to navigate.</div>
+    </div>
+  </aside>
+
+  <footer class="app-footer" role="contentinfo">
+    <p>AccessPath - Accessibility Hub for Students. Helping students with visual and hearing impairments access education, technology, and college opportunities.</p>
+  </footer>
+
+  <!-- Inline Scripts -->
+  <script>
+class JawsScreenReaderEngine {
+  constructor() {
+    this.speechSynth = window.speechSynthesis;
+    this.enabled = true;
+    this.rate = 1.0; this.pitch = 1.0; this.volume = 1.0; this.voice = null;
+    this.speechViewerActive = true;
+    this.initVoices(); this.initListeners(); this.initAriaLiveRegion();
+  }
+  initVoices() {
+    if (!this.speechSynth) return;
+    const loadVoices = () => {
+      const voices = this.speechSynth.getVoices();
+      if (voices.length > 0) this.voice = voices.find(v => v.lang.startsWith('en') && v.default) || voices[0];
+    };
+    loadVoices();
+    if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadVoices;
+  }
+  initAriaLiveRegion() {
+    let liveRegion = document.getElementById('jaws-live-announcer');
+    if (!liveRegion) {
+      liveRegion = document.createElement('div');
+      liveRegion.id = 'jaws-live-announcer';
+      liveRegion.className = 'sr-only';
+      liveRegion.setAttribute('aria-live', 'assertive');
+      document.body.appendChild(liveRegion);
+    }
+    this.liveRegion = liveRegion;
+  }
+  setSpeechRate(rate) { this.rate = parseFloat(rate); this.announce(`Speech rate set to ${this.rate}x`); }
+  toggleSpeech() {
+    this.enabled = !this.enabled;
+    if (!this.enabled && this.speechSynth) this.speechSynth.cancel();
+    const status = this.enabled ? 'Screen reader audio enabled' : 'Screen reader audio muted';
+    this.updateSpeechViewer(`[SYSTEM] ${status}`);
+    this.announce(status);
+    return this.enabled;
+  }
+  toggleSpeechViewer() {
+    this.speechViewerActive = !this.speechViewerActive;
+    const panel = document.getElementById('jaws-speech-viewer');
+    if (panel) panel.style.display = this.speechViewerActive ? 'flex' : 'none';
+    this.announce(this.speechViewerActive ? 'Speech viewer visible' : 'Speech viewer hidden');
+    return this.speechViewerActive;
+  }
+  speak(text, interrupt = true) {
+    if (!text) return;
+    this.updateSpeechViewer(text);
+    if (this.liveRegion) this.liveRegion.textContent = text;
+    if (!this.enabled || !this.speechSynth) return;
+    if (interrupt) this.speechSynth.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = this.rate; utterance.pitch = this.pitch;
+    if (this.voice) utterance.voice = this.voice;
+    this.speechSynth.speak(utterance);
+  }
+  announce(text) { this.speak(text, true); }
+  updateSpeechViewer(text) {
+    const content = document.getElementById('jaws-speech-content');
+    if (content) {
+      const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const entry = document.createElement('div');
+      entry.textContent = `[${timestamp}] ${text}`;
+      content.appendChild(entry); content.scrollTop = content.scrollHeight;
+    }
+  }
+  announceElement(el) {
+    if (!el || el === document.body) return;
+    const tagName = el.tagName.toLowerCase();
+    const label = el.getAttribute('aria-label') || el.innerText || el.title || el.alt || el.placeholder || '';
+    let text = `${tagName}, ${label}`;
+    if (tagName.match(/^h[1-6]$/)) text = `Heading level ${tagName.replace('h', '')}, ${label}`;
+    else if (tagName === 'a') text = `Link, ${label}`;
+    else if (tagName === 'button') text = `Button, ${label}`;
+    this.speak(text);
+  }
+  navigateCategory(category, reverse = false, targetDoc = document) {
+    let selector = '';
+    if (category === 'heading') selector = 'h1, h2, h3, h4, h5, h6';
+    else if (category === 'link') selector = 'a[href]';
+    else if (category === 'button') selector = 'button, input[type="button"]';
+    const items = Array.from(targetDoc.querySelectorAll(selector)).filter(el => el.offsetWidth > 0 && el.offsetHeight > 0);
+    if (items.length === 0) { this.speak(`No ${category}s found.`); return; }
+    let idx = items.indexOf(targetDoc.activeElement);
+    idx = reverse ? (idx > 0 ? idx - 1 : items.length - 1) : (idx < items.length - 1 ? idx + 1 : 0);
+    items[idx].focus();
+    this.announceElement(items[idx]);
+  }
+  initListeners() {
+    document.addEventListener('focusin', (e) => this.announceElement(e.target));
+    document.addEventListener('keydown', (e) => {
+      const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+      if (activeTag === 'input' || activeTag === 'textarea') return;
+      const key = e.key.toLowerCase();
+      if (key === 'h') { e.preventDefault(); this.navigateCategory('heading', e.shiftKey); }
+      if (key === 'l') { e.preventDefault(); this.navigateCategory('link', e.shiftKey); }
+      if (key === 'b') { e.preventDefault(); this.navigateCategory('button', e.shiftKey); }
+    });
+  }
+}
+window.jawsEngine = new JawsScreenReaderEngine();
+
+const COLLEGE_DATABASE = [
+  { id: "ut-dallas", name: "UT Dallas (University of Texas at Dallas)", state: "Texas", overallScore: 96, blindRating: 5, lowVisionRating: 4, deafRating: 4, stemRating: 5, housing: "Single rooms with strobe alerts, automatic door openers, guide dog zones.", om: "Full O&M orientation training; campus tactile pavement indicators.", screenReader: "Full site licenses for JAWS, NVDA, and ZoomText; Braille printers.", office: { name: "Access University Office", contact: "studentaccess@utdallas.edu", website: "https://access.utdallas.edu" } },
+  { id: "grinnell", name: "Grinnell College", state: "Iowa", overallScore: 98, blindRating: 5, lowVisionRating: 5, deafRating: 4, stemRating: 4, housing: "100% accessible dorms with Braille signage.", om: "1-on-1 O&M specialist guidance.", screenReader: "Dedicated Assistive Tech Lab with VoiceOver and JAWS.", office: { name: "Disability Resources", contact: "autrykatie@grinnell.edu", website: "https://www.grinnell.edu" } },
+  { id: "swarthmore", name: "Swarthmore College", state: "Pennsylvania", overallScore: 94, blindRating: 4, lowVisionRating: 4, deafRating: 4, stemRating: 5, housing: "Accessible dorm suites.", om: "Guided mobility training.", screenReader: "JAWS, Read&Write Gold, 3D tactile graphics printer.", office: { name: "Disability Services", contact: "disability@swarthmore.edu", website: "https://www.swarthmore.edu" } },
+  { id: "gallaudet", name: "Gallaudet University", state: "Washington, D.C.", overallScore: 99, blindRating: 4, lowVisionRating: 5, deafRating: 5, stemRating: 4, housing: "DeafSpace architecture with 360 light sightlines.", om: "Visual and tactile campus pathways.", screenReader: "DeafBlind refreshable Braille displays.", office: { name: "OSWD", contact: "oswd@gallaudet.edu", website: "https://gallaudet.edu" } }
+];
+
+class CollegeDatabaseEngine {
+  filterColleges(query = '', category = 'all') {
+    const q = query.toLowerCase().trim();
+    return COLLEGE_DATABASE.filter(c => {
+      const match = c.name.toLowerCase().includes(q) || c.state.toLowerCase().includes(q);
+      if (!match) return false;
+      if (category === 'blind') return c.blindRating >= 4;
+      if (category === 'deaf') return c.deafRating >= 4;
+      if (category === 'stem') return c.stemRating >= 4;
+      return true;
+    });
+  }
+  getStar(r) { return '⭐'.repeat(r); }
+  renderTable(targetId, list) {
+    const container = document.getElementById(targetId);
+    if (!container) return;
+    container.innerHTML = `
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead><tr><th>School</th><th>Overall</th><th>Blind</th><th>Low Vision</th><th>Deaf</th><th>STEM</th><th>Action</th></tr></thead>
+          <tbody>
+            ${list.map(c => `
+              <tr>
+                <td><strong>${c.name}</strong><br><small style="color:var(--text-secondary);">${c.state}</small></td>
+                <td><span class="score-pill">${c.overallScore}</span></td>
+                <td>${this.getStar(c.blindRating)}</td>
+                <td>${this.getStar(c.lowVisionRating)}</td>
+                <td>${this.getStar(c.deafRating)}</td>
+                <td>${this.getStar(c.stemRating)}</td>
+                <td><button class="primary-btn btn-view-college" data-id="${c.id}" style="padding:6px 12px; font-size:0.85rem;">View Profile</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+    container.querySelectorAll('.btn-view-college').forEach(b => {
+      b.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        const col = COLLEGE_DATABASE.find(x => x.id === id);
+        if (col) alert(`${col.name}\n\nHousing: ${col.housing}\nO&M: ${col.om}\nScreen Readers: ${col.screenReader}`);
+      });
+    });
+  }
+}
+window.collegeDbEngine = new CollegeDatabaseEngine();
+
+const KNOWLEDGEBASE_RESPONSES = [
+  { keywords: ["sat", "act"], response: "📋 **SAT/ACT Accommodations**: Request through your high school SSD coordinator 7 weeks prior. Provide eye exam/audiogram reports and 504 plan." },
+  { keywords: ["best", "college", "recommend"], response: "🎓 **Top Colleges**: UT Dallas (Score: 96), Grinnell (Score: 98), UC Berkeley (Score: 95), Gallaudet (Score: 99)." },
+  { keywords: ["fafsa", "financial", "scholarship"], response: "💰 **Funding**: Contact State Vocational Rehab (VR) for 100% tuition coverage, and apply for NFB/AFB national scholarships." }
+];
+
+class AiAssistantEngine {
+  askQuestion(text) {
+    const q = text.toLowerCase();
+    const match = KNOWLEDGEBASE_RESPONSES.find(k => k.keywords.some(kw => q.includes(kw)));
+    const ans = match ? match.response : `🤖 **AccessPath Advisor**: For "${text}", we recommend contacting your target college's Disability Office directly for accommodation forms.`;
+    if (window.jawsEngine) window.jawsEngine.speak(ans.replace(/[*_#`]/g, ''));
+    return ans;
+  }
+}
+window.aiAssistantEngine = new AiAssistantEngine();
+
+class ResourcesResearchEngine {
+  renderResources(id) {
+    const container = document.getElementById(id);
+    if (!container) return;
+    container.innerHTML = `
+      <article class="control-card" style="margin-bottom:1rem;">
+        <h4>How to Apply for College Disability Services</h4>
+        <p style="color:var(--text-secondary); margin-top:0.5rem;">Register with Disability Offices as soon as you accept admission. Request single room housing, screen reader software, and note-taking services.</p>
+      </article>
+      <article class="control-card">
+        <h4>Comparing Screen Readers: JAWS vs. NVDA vs. VoiceOver</h4>
+        <p style="color:var(--text-secondary); margin-top:0.5rem;">JAWS provides superior script customization for STEM. NVDA is lightweight and free. VoiceOver is native to Apple devices.</p>
+      </article>
+    `;
+  }
+  renderResearch(id) {
+    const container = document.getElementById(id);
+    if (!container) return;
+    container.innerHTML = `
+      <article class="control-card">
+        <h3>Empirical Survey Report: Accessibility Feature Utilization (Sample: 30 Students)</h3>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1rem;">
+          <div style="background:var(--bg-primary); padding:1rem; border-radius:6px; text-align:center;"><div style="font-size:2rem; font-weight:900; color:var(--accent-secondary);">87%</div><div>use JAWS/NVDA daily for STEM</div></div>
+          <div style="background:var(--bg-primary); padding:1rem; border-radius:6px; text-align:center;"><div style="font-size:2rem; font-weight:900; color:var(--accent-secondary);">74%</div><div>rely on CART live captioning</div></div>
+        </div>
+      </article>
+    `;
+  }
+  renderCommunity(id) {
+    const container = document.getElementById(id);
+    if (!container) return;
+    container.innerHTML = `
+      <article class="control-card">
+        <h4>Alex M. | UT Dallas (5/5 Stars)</h4>
+        <p style="color:var(--text-secondary); margin-top:0.5rem;">"The Access University Office provided tactile graphics for organic chemistry and free JAWS site licenses!"</p>
+      </article>
+    `;
+  }
+}
+window.resourcesResearchEngine = new ResourcesResearchEngine();
+
+class FindersEngine {
+  renderFinders() {
+    const sc = document.getElementById('scholarships-results-container');
+    if (sc) {
+      sc.innerHTML = `
+        <div class="control-card">
+          <h4>Texas Vocational Rehabilitation Tuition Waiver</h4>
+          <p style="color:var(--accent-secondary); font-weight:bold;">100% Tuition & Mandatory Fees Covered (Texas)</p>
+          <p style="color:var(--text-secondary); margin-top:0.5rem;">Covers full tuition and books at Texas public universities (UT Dallas, UT Austin, A&M).</p>
+        </div>
+      `;
+    }
+    const sm = document.getElementById('summer-programs-results-container');
+    if (sm) {
+      sm.innerHTML = `
+        <div class="control-card">
+          <h4>NASA STEM Internship Program for Disabled High Schoolers</h4>
+          <p style="color:var(--accent-tertiary); font-weight:bold;">Location: Virtual & On-Site</p>
+          <p style="color:var(--text-secondary); margin-top:0.5rem;">Paid summer research internships for disabled high school students.</p>
+        </div>
+      `;
+    }
+  }
+}
+window.findersEngine = new FindersEngine();
+
+class AccessPathAppController {
+  constructor() {
+    this.initTabNavigation();
+    this.initCollegeDatabase();
+    this.initAiAssistant();
+    this.initResources();
+  }
+  initTabNavigation() {
+    this.tabs = Array.from(document.querySelectorAll('.nav-link'));
+    this.panels = Array.from(document.querySelectorAll('.section-panel'));
+    this.tabs.forEach((t, i) => {
+      t.addEventListener('click', (e) => { e.preventDefault(); this.activateTab(i); });
+    });
+    document.getElementById('hero-btn-colleges')?.addEventListener('click', () => this.activateTab(1));
+    document.getElementById('hero-btn-ai')?.addEventListener('click', () => this.activateTab(3));
+    document.getElementById('hero-btn-tools')?.addEventListener('click', () => this.activateTab(2));
+  }
+  activateTab(idx) {
+    this.tabs.forEach((t, i) => {
+      const isSel = i === idx;
+      t.classList.toggle('active', isSel);
+      if (this.panels[i]) this.panels[i].style.display = isSel ? 'block' : 'none';
+    });
+    if (window.jawsEngine) window.jawsEngine.speak(`Switched to tab ${this.tabs[idx].innerText}`);
+  }
+  initCollegeDatabase() {
+    window.collegeDbEngine.renderTable('college-table-container', window.collegeDbEngine.filterColleges());
+  }
+  initAiAssistant() {
+    const input = document.getElementById('input-chat');
+    const btn = document.getElementById('btn-send-chat');
+    const hist = document.getElementById('chat-history');
+    const send = (txt) => {
+      const q = txt || (input ? input.value : '');
+      if (!q.trim()) return;
+      if (input) input.value = '';
+      const uB = document.createElement('div'); uB.className = 'chat-bubble user'; uB.textContent = q; hist.appendChild(uB);
+      setTimeout(() => {
+        const ans = window.aiAssistantEngine.askQuestion(q);
+        const aB = document.createElement('div'); aB.className = 'chat-bubble ai'; aB.innerHTML = ans.replace(/\n/g, '<br>'); hist.appendChild(aB);
+        hist.scrollTop = hist.scrollHeight;
+      }, 300);
+    };
+    if (btn) btn.addEventListener('click', () => send());
+    if (input) input.addEventListener('keydown', (e) => { if (e.key === 'Enter') send(); });
+    document.querySelectorAll('.chip-btn').forEach(c => {
+      c.addEventListener('click', (e) => send(e.currentTarget.getAttribute('data-prompt')));
+    });
+  }
+  initResources() {
+    window.resourcesResearchEngine.renderResources('resources-container');
+    window.resourcesResearchEngine.renderResearch('research-container');
+    window.resourcesResearchEngine.renderCommunity('community-container');
+    window.findersEngine.renderFinders();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  window.accessPathApp = new AccessPathAppController();
+});
+  </script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+# Google App Engine Configuration
+# Deploys the Flask app to Google Cloud's serverless App Engine.
+# The F1 instance class is eligible for the GAE free tier (28 instance-hours per day).
+
+runtime: python39
+instance_class: F1
+
+entrypoint: gunicorn -b :$PORT wsgi:application
+
+# Define standard environment variables.
+# For security, GEMINI_API_KEY should be set via the GCP console or deployment parameters.
+env_variables:
+  NODE_ENV: "production"
+  FLASK_SECRET_KEY: "dev-insecure-secret-key-change-me"

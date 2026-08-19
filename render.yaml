@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: ai-hub-agent
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn wsgi:application
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FLASK_SECRET_KEY
+        generateValue: true
+      - key: APP_DATA_DIR
+        value: /opt/render/project/src/data
+      - key: AI_BRAIN_DB_PATH
+        value: /opt/render/project/src/data/ai_brain.db

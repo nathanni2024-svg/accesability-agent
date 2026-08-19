@@ -1,0 +1,32 @@
+# Environment variables (API Keys)
+.env
+# Google API Credentials
+credentials.json
+token.json
+# SSL Certificates
+*.pem
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE configurations
+.idea/
+.vscode/
+
+# OS generated files
+.DS_Store
+
+# Runtime app data
+data/
+generated_graphs/
+Sorted_Messages/
+static/generated_images/
+*.db
+*.log
