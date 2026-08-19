@@ -1,7 +1,7 @@
 # Google Cloud Run Dockerfile
 # Builds a lightweight container for the Flask accessibility agent.
 
-FROM python:3.9-slim
+FROM python:3.11
 
 # Prevent Python from writing pyc files and buffering stdout/stderr
 ENV PYTHONDONTWRITEBYTECODE=1
